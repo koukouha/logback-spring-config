@@ -15,6 +15,7 @@
  */
 package com.github.yihtserns.logback.spring.config;
 
+import ch.qos.logback.core.Context;
 import com.github.yihtserns.logback.spring.config.util.MockAppender;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author yihtserns
@@ -47,5 +50,13 @@ public class LogbackNamespaceHandlerTest {
         log.info(expectedMessage);
 
         mock.assertLogged(expectedMessage);
+    }
+
+    @Test
+    public void shouldInjectLoggerContextIntoAppender() throws Exception {
+        Context loggerContext = mock.getContext();
+
+        assertThat(loggerContext, is(not(nullValue())));
+        assertThat(loggerContext, is((Context) LoggerFactory.getILoggerFactory()));
     }
 }
