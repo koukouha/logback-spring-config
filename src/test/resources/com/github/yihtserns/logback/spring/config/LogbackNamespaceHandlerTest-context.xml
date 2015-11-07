@@ -6,6 +6,6 @@
         http://logback.qos.ch logback-lenient.xsd
 ">
     
-    <appender name="mock" class="ch.qos.logback.core.read.ListAppender" xmlns="http://logback.qos.ch"/>
+    <appender name="mock" class="com.github.yihtserns.logback.spring.config.util.MockAppender" xmlns="http://logback.qos.ch"/>
 
 </beans>

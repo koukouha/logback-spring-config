@@ -15,10 +15,7 @@
  */
 package com.github.yihtserns.logback.spring.config;
 
-import ch.qos.logback.classic.spi.LoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
-import org.hamcrest.FeatureMatcher;
-import org.hamcrest.Matcher;
+import com.github.yihtserns.logback.spring.config.util.MockAppender;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author yihtserns
@@ -39,11 +34,11 @@ public class LogbackNamespaceHandlerTest {
 
     private Logger log = LoggerFactory.getLogger(getClass());
     @Autowired
-    private ListAppender<LoggingEvent> mock;
+    private MockAppender mock;
 
     @Before
     public void resetMock() {
-        mock.list.clear();
+        mock.reset();
     }
 
     @Test
@@ -51,16 +46,6 @@ public class LogbackNamespaceHandlerTest {
         final String expectedMessage = "Configured successfully!";
         log.info(expectedMessage);
 
-        assertThat(mock.list, contains(message(equalTo("Configured successfully!"))));
-    }
-
-    private static FeatureMatcher<LoggingEvent, String> message(Matcher<String> messageMatcher) {
-        return new FeatureMatcher<LoggingEvent, String>(messageMatcher, "log message", "log message") {
-
-            @Override
-            protected String featureValueOf(LoggingEvent event) {
-                return event.getFormattedMessage();
-            }
-        };
+        mock.assertLogged(expectedMessage);
     }
 }
