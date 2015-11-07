@@ -1,0 +1,1 @@
+http\://logback.qos.ch=com.github.yihtserns.logback.spring.config.LogbackNamespaceHandler
