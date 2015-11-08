@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yihtserns
@@ -58,5 +58,17 @@ public class LogbackNamespaceHandlerTest {
 
         assertThat(loggerContext, is(not(nullValue())));
         assertThat(loggerContext, is((Context) LoggerFactory.getILoggerFactory()));
+    }
+
+    @Test
+    public void canConfigureFilter() throws Exception {
+        final String expectedMessage1 = "Accepted";
+        final String expectedMessage2 = "Accepted 2";
+
+        log.info(expectedMessage1);
+        log.info("[DROP] Rejected");
+        log.info(expectedMessage2);
+
+        mock.assertLogged(expectedMessage1, expectedMessage2);
     }
 }

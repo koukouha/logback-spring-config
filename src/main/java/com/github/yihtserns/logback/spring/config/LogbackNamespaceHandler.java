@@ -16,6 +16,7 @@
 package com.github.yihtserns.logback.spring.config;
 
 import ch.qos.logback.ext.spring.ApplicationContextHolder;
+import java.util.List;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -38,10 +40,23 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
             protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
                 registerContextHolderIfNotYet(parserContext);
 
-                super.doParse(element, parserContext, builder); //To change body of generated methods, choose Tools | Templates.
+                super.doParse(element, parserContext, builder);
 
-                builder.setInitMethodName("start");
-                builder.setDestroyMethodName("stop");
+                String appenderClassName = element.getAttribute("class");
+                BeanDefinition appenderBd = BeanDefinitionBuilder.genericBeanDefinition(appenderClassName)
+                        .setInitMethodName("start")
+                        .setDestroyMethodName("stop")
+                        .getBeanDefinition();
+                builder.addPropertyValue("appender", appenderBd);
+
+                List<Element> childElements = DomUtils.getChildElements(element);
+                for (Element childElement : childElements) {
+                    String childClassName = childElement.getAttribute("class");
+                    BeanDefinition childBd = BeanDefinitionBuilder.genericBeanDefinition(childClassName).getBeanDefinition();
+
+                    builder.addPropertyValue(childElement.getLocalName(), childBd);
+                }
+
             }
 
             private void registerContextHolderIfNotYet(ParserContext parserContext) {
@@ -59,8 +74,8 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
             }
 
             @Override
-            protected String getBeanClassName(Element element) {
-                return element.getAttribute("class");
+            protected Class<?> getBeanClass(Element element) {
+                return AppenderFactoryBean.class;
             }
         });
     }

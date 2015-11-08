@@ -16,29 +16,25 @@
 package com.github.yihtserns.logback.spring.config.util;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
-import java.util.ArrayList;
-import java.util.List;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
 
 /**
  * @author yihtserns
+ * @see #decide(ILoggingEvent)
  */
-public class MockAppender extends AppenderBase<ILoggingEvent> {
+public class SpecialWordFilter extends Filter<ILoggingEvent> {
 
-    private List<String> messageList = new ArrayList<String>();
+    private static final String SPECIAL_WORD = "[DROP]";
 
+    /**
+     * @param event to get the message
+     * @return deny if message contains {@value #SPECIAL_WORD}, accept otherwise
+     */
     @Override
-    protected void append(ILoggingEvent event) {
-        messageList.add(event.getFormattedMessage());
-    }
-
-    public void assertLogged(String... messages) {
-        assertThat(messageList, contains(messages));
-    }
-
-    public void reset() {
-        messageList.clear();
+    public FilterReply decide(ILoggingEvent event) {
+        return event.getMessage().contains(SPECIAL_WORD)
+                ? FilterReply.DENY
+                : FilterReply.ACCEPT;
     }
 }
