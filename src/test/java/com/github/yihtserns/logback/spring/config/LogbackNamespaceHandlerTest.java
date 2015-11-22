@@ -16,7 +16,7 @@
 package com.github.yihtserns.logback.spring.config;
 
 import ch.qos.logback.core.Context;
-import com.github.yihtserns.logback.spring.config.util.MockAppender;
+import com.github.yihtserns.logback.spring.config.testutil.MockAppender;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

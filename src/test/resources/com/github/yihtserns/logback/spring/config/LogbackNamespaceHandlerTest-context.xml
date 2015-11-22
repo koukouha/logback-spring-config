@@ -6,8 +6,8 @@
         http://logback.qos.ch logback-lenient.xsd
 ">
     
-    <appender name="mock" class="com.github.yihtserns.logback.spring.config.util.MockAppender" xmlns="http://logback.qos.ch">
-        <filter class="com.github.yihtserns.logback.spring.config.util.SpecialWordFilter"/>
+    <appender name="mock" class="com.github.yihtserns.logback.spring.config.testutil.MockAppender" xmlns="http://logback.qos.ch">
+        <filter class="com.github.yihtserns.logback.spring.config.testutil.SpecialWordFilter"/>
     </appender>
 
 </beans>
