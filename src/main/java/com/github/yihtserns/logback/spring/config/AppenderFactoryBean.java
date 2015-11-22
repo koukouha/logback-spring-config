@@ -16,7 +16,13 @@
 package com.github.yihtserns.logback.spring.config;
 
 import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.Context;
+import ch.qos.logback.core.joran.util.PropertySetter;
+import ch.qos.logback.core.util.AggregationType;
+import static ch.qos.logback.core.util.AggregationType.AS_COMPLEX_PROPERTY_COLLECTION;
+import java.util.Map;
+import java.util.Map.Entry;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -26,18 +32,37 @@ import org.springframework.beans.factory.InitializingBean;
 public class AppenderFactoryBean implements InitializingBean, FactoryBean {
 
     private Appender appender;
-    private Filter filter;
+    private Map<String, Object> property2Value = null;
 
     public void setAppender(Appender appender) {
         this.appender = appender;
     }
 
-    public void setFilter(Filter filter) {
-        this.filter = filter;
+    public void setPropertyValues(Map<String, Object> property2Value) {
+        this.property2Value = property2Value;
     }
 
     public void afterPropertiesSet() {
-        appender.addFilter(filter);
+        if (property2Value == null) {
+            return;
+        }
+
+        PropertySetter setter = new PropertySetter(appender);
+        setter.setContext((Context) LoggerFactory.getILoggerFactory());
+
+        for (Entry<String, Object> entry : property2Value.entrySet()) {
+            String propertyName = entry.getKey();
+            Object value = entry.getValue();
+
+            AggregationType setterType = setter.computeAggregationType(propertyName);
+            switch (setterType) {
+                case AS_COMPLEX_PROPERTY_COLLECTION:
+                    setter.addComplexProperty(propertyName, value);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Not implemented yet for AggregationType: " + setterType);
+            }
+        }
     }
 
     public Object getObject() throws Exception {

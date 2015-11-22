@@ -22,6 +22,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -49,14 +50,16 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                         .getBeanDefinition();
                 builder.addPropertyValue("appender", appenderBd);
 
+                ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
                 List<Element> childElements = DomUtils.getChildElements(element);
+
                 for (Element childElement : childElements) {
                     String childClassName = childElement.getAttribute("class");
                     BeanDefinition childBd = BeanDefinitionBuilder.genericBeanDefinition(childClassName).getBeanDefinition();
 
-                    builder.addPropertyValue(childElement.getLocalName(), childBd);
+                    property2Value.put(childElement.getLocalName(), childBd);
                 }
-
+                builder.addPropertyValue("propertyValues", property2Value);
             }
 
             private void registerContextHolderIfNotYet(ParserContext parserContext) {
