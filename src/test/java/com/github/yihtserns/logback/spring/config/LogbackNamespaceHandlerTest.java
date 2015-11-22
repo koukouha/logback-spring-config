@@ -41,6 +41,7 @@ public class LogbackNamespaceHandlerTest {
 
     @Before
     public void resetMock() {
+        log.info("To activate lazily-loaded appender");
         mock.reset();
     }
 
