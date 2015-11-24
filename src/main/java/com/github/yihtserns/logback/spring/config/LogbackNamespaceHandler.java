@@ -41,14 +41,13 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
             protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
                 registerContextHolderIfNotYet(parserContext);
 
-                super.doParse(element, parserContext, builder);
+                builder.setFactoryMethod("assemble");
 
                 String appenderClassName = element.getAttribute("class");
                 BeanDefinition appenderBd = BeanDefinitionBuilder.genericBeanDefinition(appenderClassName)
-                        .setInitMethodName("start")
                         .setDestroyMethodName("stop")
                         .getBeanDefinition();
-                builder.addPropertyValue("appender", appenderBd);
+                builder.addConstructorArgValue(appenderBd);
 
                 ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
                 List<Element> childElements = DomUtils.getChildElements(element);
@@ -59,7 +58,7 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
                     property2Value.put(childElement.getLocalName(), childBd);
                 }
-                builder.addPropertyValue("propertyValues", property2Value);
+                builder.addConstructorArgValue(property2Value);
             }
 
             private void registerContextHolderIfNotYet(ParserContext parserContext) {
@@ -78,7 +77,7 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
             @Override
             protected Class<?> getBeanClass(Element element) {
-                return AppenderFactoryBean.class;
+                return AppenderPropertiesAssembler.class;
             }
         });
     }

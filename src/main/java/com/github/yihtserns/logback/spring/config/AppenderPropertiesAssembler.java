@@ -19,38 +19,27 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.joran.util.PropertySetter;
 import ch.qos.logback.core.util.AggregationType;
-import static ch.qos.logback.core.util.AggregationType.AS_COMPLEX_PROPERTY_COLLECTION;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * @author yihtserns
+ * @see #assemble(Appender, Map)
  */
-public class AppenderFactoryBean implements InitializingBean, FactoryBean {
+public class AppenderPropertiesAssembler {
 
-    private Appender appender;
-    private Map<String, Object> property2Value = null;
-
-    public void setAppender(Appender appender) {
-        this.appender = appender;
-    }
-
-    public void setPropertyValues(Map<String, Object> property2Value) {
-        this.property2Value = property2Value;
-    }
-
-    public void afterPropertiesSet() {
-        if (property2Value == null) {
-            return;
-        }
-
+    /**
+     * Use Logback's API to set values to setXXX(value) and addXXX(value) methods because Spring only supports the former.
+     *
+     * @param appender appender to set property values to
+     * @param property2Value property values to set to appender
+     * @return the given appender
+     */
+    public static Appender assemble(Appender appender, Map<String, Object> property2Value) {
         PropertySetter setter = new PropertySetter(appender);
         setter.setContext((Context) LoggerFactory.getILoggerFactory());
 
-        for (Entry<String, Object> entry : property2Value.entrySet()) {
+        for (Map.Entry<String, Object> entry : property2Value.entrySet()) {
             String propertyName = entry.getKey();
             Object value = entry.getValue();
 
@@ -63,17 +52,8 @@ public class AppenderFactoryBean implements InitializingBean, FactoryBean {
                     throw new UnsupportedOperationException("Not implemented yet for AggregationType: " + setterType);
             }
         }
-    }
 
-    public Object getObject() throws Exception {
+        appender.start();
         return appender;
-    }
-
-    public Class getObjectType() {
-        return appender.getClass();
-    }
-
-    public boolean isSingleton() {
-        return true;
     }
 }
