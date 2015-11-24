@@ -20,6 +20,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.util.StatusPrinter;
 import com.github.yihtserns.logback.spring.config.testutil.MockAppender;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,13 +32,15 @@ import org.junit.After;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
+import org.xml.sax.InputSource;
 
 /**
  * @author yihtserns
  */
 public class LogbackNamespaceHandlerTest {
 
-    private Logger log = LoggerFactory.getLogger(getClass());
+    private static final String LOGGER_NAME = "test";
+    private Logger log = LoggerFactory.getLogger(LOGGER_NAME);
     private GenericApplicationContext appContext;
 
     @Before
@@ -47,7 +50,26 @@ public class LogbackNamespaceHandlerTest {
         joranConfigurator.setContext(loggerContext);
 
         loggerContext.reset();
-        joranConfigurator.doConfigure(getClass().getResource("/logback-test.xml"));
+        joranConfigurator.doConfigure(new InputSource(new StringReader(
+                "<configuration debug=\"true\">\n"
+                + "\n"
+                + "    <appender name=\"mock\" class=\"ch.qos.logback.ext.spring.DelegatingLogbackAppender\"/>\n"
+                + "\n"
+                + "    <appender name=\"stdout\" class=\"ch.qos.logback.core.ConsoleAppender\">\n"
+                + "        <encoder>\n"
+                + "            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>\n"
+                + "        </encoder>\n"
+                + "    </appender>\n"
+                + "\n"
+                + "    <logger name=\"" + LOGGER_NAME + "\" level=\"INFO\" additivity=\"false\">\n"
+                + "        <appender-ref ref=\"mock\"/>\n"
+                + "    </logger>\n"
+                + "\n"
+                + "    <root level=\"INFO\">\n"
+                + "        <appender-ref ref=\"stdout\"/>\n"
+                + "    </root>\n"
+                + "\n"
+                + "</configuration>")));
 
         StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
     }
