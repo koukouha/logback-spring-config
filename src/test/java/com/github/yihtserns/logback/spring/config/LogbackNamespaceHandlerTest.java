@@ -76,8 +76,10 @@ public class LogbackNamespaceHandlerTest {
 
     @After
     public void closeAppContext() {
-        appContext.close();
-        appContext.stop();
+        if (appContext != null) {
+            appContext.close();
+            appContext.stop();
+        }
     }
 
     @Test
