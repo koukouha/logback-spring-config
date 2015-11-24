@@ -58,7 +58,11 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
                     Object childValue;
                     if (StringUtils.hasText(childClassName)) {
-                        childValue = BeanDefinitionBuilder.genericBeanDefinition(childClassName).getBeanDefinition();
+                        ParserContext childParserContext = new ParserContext(
+                                parserContext.getReaderContext(),
+                                parserContext.getDelegate(),
+                                builder.getRawBeanDefinition());
+                        childValue = parse(childElement, childParserContext);
                     } else {
                         childValue = childElement.getTextContent();
                     }
@@ -84,7 +88,7 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
             @Override
             protected Class<?> getBeanClass(Element element) {
-                return AppenderPropertiesAssembler.class;
+                return LogbackObjectPropertiesAssembler.class;
             }
         });
     }

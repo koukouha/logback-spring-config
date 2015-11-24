@@ -18,6 +18,7 @@ package com.github.yihtserns.logback.spring.config;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.joran.util.PropertySetter;
+import ch.qos.logback.core.spi.LifeCycle;
 import ch.qos.logback.core.util.AggregationType;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
@@ -26,17 +27,17 @@ import org.slf4j.LoggerFactory;
  * @author yihtserns
  * @see #assemble(Appender, Map)
  */
-public class AppenderPropertiesAssembler {
+public class LogbackObjectPropertiesAssembler {
 
     /**
      * Use Logback's API to set values to setXXX(value) and addXXX(value) methods because Spring only supports the former.
      *
-     * @param appender appender to set property values to
-     * @param property2Value property values to set to appender
-     * @return the given appender
+     * @param logbackObject object to set property values to
+     * @param property2Value property values to set to object
+     * @return the given object
      */
-    public static Appender assemble(Appender appender, Map<String, Object> property2Value) {
-        PropertySetter setter = new PropertySetter(appender);
+    public static Object assemble(Object logbackObject, Map<String, Object> property2Value) {
+        PropertySetter setter = new PropertySetter(logbackObject);
         setter.setContext((Context) LoggerFactory.getILoggerFactory());
 
         for (Map.Entry<String, Object> entry : property2Value.entrySet()) {
@@ -56,7 +57,9 @@ public class AppenderPropertiesAssembler {
             }
         }
 
-        appender.start();
-        return appender;
+        if (logbackObject instanceof LifeCycle) {
+            ((LifeCycle) logbackObject).start();
+        }
+        return logbackObject;
     }
 }

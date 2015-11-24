@@ -25,16 +25,24 @@ import ch.qos.logback.core.spi.FilterReply;
  */
 public class SpecialWordFilter extends Filter<ILoggingEvent> {
 
-    private static final String SPECIAL_WORD = "[DROP]";
+    private static final String DEFAULT_SPECIAL_WORD = "[DROP]";
+    private String specialWord = DEFAULT_SPECIAL_WORD;
 
     /**
      * @param event to get the message
-     * @return deny if message contains {@value #SPECIAL_WORD}, accept otherwise
+     * @return deny if message contains {@link #setSpecialWord(String) special word}, accept otherwise
      */
     @Override
     public FilterReply decide(ILoggingEvent event) {
-        return event.getMessage().contains(SPECIAL_WORD)
+        return event.getMessage().contains(specialWord)
                 ? FilterReply.DENY
                 : FilterReply.ACCEPT;
+    }
+
+    /**
+     * Defaults to {@value #DEFAULT_SPECIAL_WORD}.
+     */
+    public void setSpecialWord(String specialWord) {
+        this.specialWord = specialWord;
     }
 }
