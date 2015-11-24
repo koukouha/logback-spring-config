@@ -20,7 +20,9 @@ import ch.qos.logback.core.Context;
 import ch.qos.logback.core.joran.util.PropertySetter;
 import ch.qos.logback.core.spi.LifeCycle;
 import ch.qos.logback.core.util.AggregationType;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -33,27 +35,29 @@ public class LogbackObjectPropertiesAssembler {
      * Use Logback's API to set values to setXXX(value) and addXXX(value) methods because Spring only supports the former.
      *
      * @param logbackObject object to set property values to
-     * @param property2Value property values to set to object
+     * @param property2ValueList list with even items,
      * @return the given object
      */
-    public static Object assemble(Object logbackObject, Map<String, Object> property2Value) {
+    public static Object assemble(Object logbackObject, List<Map<String, Object>> property2ValueList) {
         PropertySetter setter = new PropertySetter(logbackObject);
         setter.setContext((Context) LoggerFactory.getILoggerFactory());
 
-        for (Map.Entry<String, Object> entry : property2Value.entrySet()) {
-            String propertyName = entry.getKey();
-            Object value = entry.getValue();
+        for (Map<String, Object> property2Value : property2ValueList) {
+            for (Entry<String, Object> entry : property2Value.entrySet()) {
+                String propertyName = entry.getKey();
+                Object value = entry.getValue();
 
-            AggregationType setterType = setter.computeAggregationType(propertyName);
-            switch (setterType) {
-                case AS_BASIC_PROPERTY:
-                    setter.setProperty(propertyName, (String) value);
-                    break;
-                case AS_COMPLEX_PROPERTY_COLLECTION:
-                    setter.addComplexProperty(propertyName, value);
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Not implemented yet for AggregationType: " + setterType);
+                AggregationType setterType = setter.computeAggregationType(propertyName);
+                switch (setterType) {
+                    case AS_BASIC_PROPERTY:
+                        setter.setProperty(propertyName, (String) value);
+                        break;
+                    case AS_COMPLEX_PROPERTY_COLLECTION:
+                        setter.addComplexProperty(propertyName, value);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Not implemented yet for AggregationType: " + setterType);
+                }
             }
         }
 

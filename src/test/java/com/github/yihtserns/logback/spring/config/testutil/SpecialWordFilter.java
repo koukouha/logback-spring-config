@@ -36,7 +36,7 @@ public class SpecialWordFilter extends Filter<ILoggingEvent> {
     public FilterReply decide(ILoggingEvent event) {
         return event.getMessage().contains(specialWord)
                 ? FilterReply.DENY
-                : FilterReply.ACCEPT;
+                : FilterReply.NEUTRAL;
     }
 
     /**

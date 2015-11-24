@@ -16,12 +16,12 @@
 package com.github.yihtserns.logback.spring.config;
 
 import ch.qos.logback.ext.spring.ApplicationContextHolder;
-import java.util.List;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
@@ -50,10 +50,8 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                         .getBeanDefinition();
                 builder.addConstructorArgValue(appenderBd);
 
-                ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
-                List<Element> childElements = DomUtils.getChildElements(element);
-
-                for (Element childElement : childElements) {
+                ManagedList<ManagedMap<String, Object>> property2ValueList = new ManagedList<ManagedMap<String, Object>>();
+                for (Element childElement : DomUtils.getChildElements(element)) {
                     String childClassName = childElement.getAttribute("class");
 
                     Object childValue;
@@ -67,9 +65,12 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                         childValue = childElement.getTextContent();
                     }
 
+                    ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
                     property2Value.put(childElement.getLocalName(), childValue);
+
+                    property2ValueList.add(property2Value);
                 }
-                builder.addConstructorArgValue(property2Value);
+                builder.addConstructorArgValue(property2ValueList);
             }
 
             private void registerContextHolderIfNotYet(ParserContext parserContext) {
