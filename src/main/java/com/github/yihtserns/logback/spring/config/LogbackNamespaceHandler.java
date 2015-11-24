@@ -59,30 +59,33 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                 ManagedList<ManagedMap<String, Object>> property2ValueList = new ManagedList<ManagedMap<String, Object>>();
                 for (Element childElement : DomUtils.getChildElements(element)) {
                     String localName = childElement.getLocalName();
+
+                    String propertyName;
+                    Object propertyValue;
                     if ("appender-ref".equals(localName)) {
                         String appenderName = childElement.getAttribute("ref");
 
-                        ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
-                        property2Value.put("appender", new RuntimeBeanReference(appenderName));
+                        propertyName = "appender";
+                        propertyValue = new RuntimeBeanReference(appenderName);
+                    } else if (StringUtils.hasText(childElement.getAttribute("class"))) {
+                        // Complex property
+                        ParserContext childParserContext = new ParserContext(
+                                parserContext.getReaderContext(),
+                                parserContext.getDelegate(),
+                                builder.getRawBeanDefinition());
 
-                        property2ValueList.add(property2Value);
+                        propertyName = localName;
+                        propertyValue = parse(childElement, childParserContext);
                     } else {
-                        Object childValue;
-                        if (StringUtils.hasText(childElement.getAttribute("class"))) {
-                            ParserContext childParserContext = new ParserContext(
-                                    parserContext.getReaderContext(),
-                                    parserContext.getDelegate(),
-                                    builder.getRawBeanDefinition());
-                            childValue = parse(childElement, childParserContext);
-                        } else {
-                            childValue = childElement.getTextContent();
-                        }
-
-                        ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
-                        property2Value.put(localName, childValue);
-
-                        property2ValueList.add(property2Value);
+                        // Simple property
+                        propertyName = localName;
+                        propertyValue = childElement.getTextContent();
                     }
+
+                    ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
+                    property2Value.put(propertyName, propertyValue);
+
+                    property2ValueList.add(property2Value);
                 }
                 builder.addConstructorArgValue(property2ValueList);
             }
