@@ -36,7 +36,7 @@ public class LogbackObjectPropertiesAssembler {
      * Use Logback's API to set values to setXXX(value) and addXXX(value) methods because Spring only supports the former.
      *
      * @param logbackObject object to set property values to
-     * @param property2ValueList list with even items,
+     * @param property2ValueList property-to-value pairs
      * @param context Logback context
      * @return the given object
      */
