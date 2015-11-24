@@ -45,6 +45,9 @@ public class AppenderPropertiesAssembler {
 
             AggregationType setterType = setter.computeAggregationType(propertyName);
             switch (setterType) {
+                case AS_BASIC_PROPERTY:
+                    setter.setProperty(propertyName, (String) value);
+                    break;
                 case AS_COMPLEX_PROPERTY_COLLECTION:
                     setter.addComplexProperty(propertyName, value);
                     break;

@@ -28,6 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class MockAppender extends AppenderBase<ILoggingEvent> {
 
     private List<String> messageList = new ArrayList<String>();
+    public long id;
 
     @Override
     protected void append(ILoggingEvent event) {
@@ -40,5 +41,9 @@ public class MockAppender extends AppenderBase<ILoggingEvent> {
 
     public void reset() {
         messageList.clear();
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
@@ -54,9 +55,15 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
                 for (Element childElement : childElements) {
                     String childClassName = childElement.getAttribute("class");
-                    BeanDefinition childBd = BeanDefinitionBuilder.genericBeanDefinition(childClassName).getBeanDefinition();
 
-                    property2Value.put(childElement.getLocalName(), childBd);
+                    Object childValue;
+                    if (StringUtils.hasText(childClassName)) {
+                        childValue = BeanDefinitionBuilder.genericBeanDefinition(childClassName).getBeanDefinition();
+                    } else {
+                        childValue = childElement.getTextContent();
+                    }
+
+                    property2Value.put(childElement.getLocalName(), childValue);
                 }
                 builder.addConstructorArgValue(property2Value);
             }
