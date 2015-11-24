@@ -15,8 +15,10 @@
  */
 package com.github.yihtserns.logback.spring.config;
 
+import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.util.StatusPrinter;
 import com.github.yihtserns.logback.spring.config.testutil.MockAppender;
@@ -196,6 +198,27 @@ public class LogbackNamespaceHandlerTest {
 
         MockAppender mock = appContext.getBean(MockAppender.class);
         mock.assertLogged(expectedMessage1, expectedMessage2);
+    }
+
+    @Test
+    public void canAttachAppenders() throws Exception {
+        appContext = newApplicationContextFor(
+                "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n"
+                + "       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + "       xsi:schemaLocation=\"\n"
+                + "            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\n"
+                + "            http://logback.qos.ch logback-lenient.xsd\n"
+                + "\">\n"
+                + "    <appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\" xmlns=\"http://logback.qos.ch\"/>\n"
+                + "    <appender name=\"async\" class=\"ch.qos.logback.classic.AsyncAppender\" xmlns=\"http://logback.qos.ch\">\n"
+                + "        <appender-ref ref=\"mock\"/>\n"
+                + "    </appender>\n"
+                + "</beans>");
+
+        AsyncAppender asyncAppender = appContext.getBean(AsyncAppender.class);
+        Appender mockAppender = appContext.getBean(MockAppender.class);
+
+        assertThat(asyncAppender.getAppender("mock"), is(sameInstance(mockAppender)));
     }
 
     private static GenericApplicationContext newApplicationContextFor(String xml) {

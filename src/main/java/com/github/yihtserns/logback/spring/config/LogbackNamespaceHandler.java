@@ -18,6 +18,7 @@ package com.github.yihtserns.logback.spring.config;
 import ch.qos.logback.ext.spring.ApplicationContextHolder;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -44,6 +45,11 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
                 builder.setFactoryMethod("assemble");
 
+                String name = element.getAttribute("name");
+                if (StringUtils.hasText(name)) {
+                    builder.addPropertyValue("name", name);
+                }
+
                 String appenderClassName = element.getAttribute("class");
                 BeanDefinition appenderBd = BeanDefinitionBuilder.genericBeanDefinition(appenderClassName)
                         .setDestroyMethodName("stop")
@@ -52,23 +58,31 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
                 ManagedList<ManagedMap<String, Object>> property2ValueList = new ManagedList<ManagedMap<String, Object>>();
                 for (Element childElement : DomUtils.getChildElements(element)) {
-                    String childClassName = childElement.getAttribute("class");
+                    String localName = childElement.getLocalName();
+                    if ("appender-ref".equals(localName)) {
+                        String appenderName = childElement.getAttribute("ref");
 
-                    Object childValue;
-                    if (StringUtils.hasText(childClassName)) {
-                        ParserContext childParserContext = new ParserContext(
-                                parserContext.getReaderContext(),
-                                parserContext.getDelegate(),
-                                builder.getRawBeanDefinition());
-                        childValue = parse(childElement, childParserContext);
+                        ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
+                        property2Value.put("appender", new RuntimeBeanReference(appenderName));
+
+                        property2ValueList.add(property2Value);
                     } else {
-                        childValue = childElement.getTextContent();
+                        Object childValue;
+                        if (StringUtils.hasText(childElement.getAttribute("class"))) {
+                            ParserContext childParserContext = new ParserContext(
+                                    parserContext.getReaderContext(),
+                                    parserContext.getDelegate(),
+                                    builder.getRawBeanDefinition());
+                            childValue = parse(childElement, childParserContext);
+                        } else {
+                            childValue = childElement.getTextContent();
+                        }
+
+                        ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
+                        property2Value.put(localName, childValue);
+
+                        property2ValueList.add(property2Value);
                     }
-
-                    ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
-                    property2Value.put(childElement.getLocalName(), childValue);
-
-                    property2ValueList.add(property2Value);
                 }
                 builder.addConstructorArgValue(property2ValueList);
             }
