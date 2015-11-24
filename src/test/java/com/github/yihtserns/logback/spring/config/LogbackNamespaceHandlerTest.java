@@ -102,9 +102,9 @@ public class LogbackNamespaceHandlerTest {
                 + " xmlns=\"http://logback.qos.ch\"\n"
                 + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
                 + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\"/>\n");
-        log.info("To activate lazily-loaded appender");
-
         MockAppender mock = appContext.getBean(MockAppender.class);
+
+        log.info("To activate lazily-loaded appender");
         mock.reset();
 
         Context loggerContext = mock.getContext();
