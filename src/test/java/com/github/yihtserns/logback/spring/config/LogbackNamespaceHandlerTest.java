@@ -15,34 +15,69 @@
  */
 package com.github.yihtserns.logback.spring.config;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Context;
+import ch.qos.logback.core.util.StatusPrinter;
 import com.github.yihtserns.logback.spring.config.testutil.MockAppender;
+import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.After;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.ByteArrayResource;
 
 /**
  * @author yihtserns
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
 public class LogbackNamespaceHandlerTest {
 
+    private static final String XML
+            = "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+            + "          xmlns=\"http://logback.qos.ch\"\n"
+            + "          xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+            + "          xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+            + "    <filter class=\"com.github.yihtserns.logback.spring.config.testutil.SpecialWordFilter\"/>\n"
+            + "</appender>";
+    private GenericApplicationContext appContext = new GenericApplicationContext();
     private Logger log = LoggerFactory.getLogger(getClass());
-    @Autowired
     private MockAppender mock;
 
     @Before
-    public void resetMock() {
-        log.info("To activate lazily-loaded appender");
-        mock.reset();
+    public void init() throws Exception {
+        // Setup Spring
+        {
+            XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(appContext);
+            xmlReader.loadBeanDefinitions(new ByteArrayResource(XML.getBytes(Charset.forName("UTF-8"))));
+
+            appContext.refresh();
+            appContext.start();
+
+            mock = appContext.getBean(MockAppender.class);
+        }
+
+        // Setup Logback
+        {
+            LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+            JoranConfigurator joranConfigurator = new JoranConfigurator();
+            joranConfigurator.setContext(loggerContext);
+
+            loggerContext.reset();
+            joranConfigurator.doConfigure(getClass().getResource("/logback-test.xml"));
+
+            StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
+        }
+    }
+
+    @After
+    public void closeAppContext() {
+        appContext.close();
+        appContext.stop();
     }
 
     @Test
@@ -55,6 +90,9 @@ public class LogbackNamespaceHandlerTest {
 
     @Test
     public void shouldInjectLoggerContextIntoAppender() throws Exception {
+        log.info("To activate lazily-loaded appender");
+        mock.reset();
+
         Context loggerContext = mock.getContext();
 
         assertThat(loggerContext, is(not(nullValue())));
