@@ -118,7 +118,7 @@ public class LogbackNamespaceHandlerTest {
     }
 
     @Test
-    public void canConfigureAppender() throws Exception {
+    public void canSetSimplePropertyIntoAppender() throws Exception {
         appContext = newApplicationContextFor(
                 "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
                 + " xmlns=\"http://logback.qos.ch\"\n"
@@ -132,7 +132,7 @@ public class LogbackNamespaceHandlerTest {
     }
 
     @Test
-    public void canSetFilterIntoAppender() throws Exception {
+    public void canAddComplexValueIntoAppender() throws Exception {
         appContext = newApplicationContextFor(
                 "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
                 + " xmlns=\"http://logback.qos.ch\"\n"
@@ -176,7 +176,7 @@ public class LogbackNamespaceHandlerTest {
     }
 
     @Test
-    public void canSetMultipleFilterIntoAppender() throws Exception {
+    public void canAddMultipleComplexValueIntoAppender() throws Exception {
         appContext = newApplicationContextFor(
                 "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
                 + " xmlns=\"http://logback.qos.ch\"\n"
@@ -201,7 +201,7 @@ public class LogbackNamespaceHandlerTest {
     }
 
     @Test
-    public void canAttachAppenders() throws Exception {
+    public void canAttachAppenderIntoAppender() throws Exception {
         appContext = newApplicationContextFor(
                 "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n"
                 + "       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
@@ -222,7 +222,7 @@ public class LogbackNamespaceHandlerTest {
     }
 
     @Test
-    public void canAttachEncoder() throws Exception {
+    public void canSetComplexValueIntoAppender() throws Exception {
         appContext = newApplicationContextFor(
                 "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
                 + " xmlns=\"http://logback.qos.ch\"\n"
