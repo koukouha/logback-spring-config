@@ -221,6 +221,29 @@ public class LogbackNamespaceHandlerTest {
         assertThat(asyncAppender.getAppender("mock"), is(sameInstance(mockAppender)));
     }
 
+    @Test
+    public void canAttachEncoder() throws Exception {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <layout class=\"ch.qos.logback.classic.PatternLayout\">\n"
+                + "        <pattern>%level - %msg</pattern>\n"
+                + "    </layout>\n"
+                + "</appender>");
+
+        log.info("Information");
+        log.warn("Warning");
+        log.error("Problem");
+
+        MockAppender mock = appContext.getBean(MockAppender.class);
+        mock.assertLogged(
+                "INFO - Information",
+                "WARN - Warning",
+                "ERROR - Problem");
+    }
+
     private static GenericApplicationContext newApplicationContextFor(String xml) {
         GenericApplicationContext applicationContext = new GenericApplicationContext();
         XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);

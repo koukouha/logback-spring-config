@@ -17,6 +17,7 @@ package com.github.yihtserns.logback.spring.config.testutil;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.core.Layout;
 import java.util.ArrayList;
 import java.util.List;
 import static org.hamcrest.Matchers.*;
@@ -28,11 +29,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class MockAppender extends AppenderBase<ILoggingEvent> {
 
     private List<String> messageList = new ArrayList<String>();
+    private Layout<ILoggingEvent> layout = FormattedMessageLayout.INSTANCE;
     public long id;
 
     @Override
     protected void append(ILoggingEvent event) {
-        messageList.add(event.getFormattedMessage());
+        messageList.add(layout.doLayout(event));
     }
 
     public void assertLogged(String... messages) {
@@ -41,6 +43,10 @@ public class MockAppender extends AppenderBase<ILoggingEvent> {
 
     public void reset() {
         messageList.clear();
+    }
+
+    public void setLayout(Layout<ILoggingEvent> layout) {
+        this.layout = layout;
     }
 
     public void setId(long id) {

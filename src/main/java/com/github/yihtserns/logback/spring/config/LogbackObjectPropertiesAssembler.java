@@ -18,6 +18,7 @@ package com.github.yihtserns.logback.spring.config;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.joran.util.PropertySetter;
+import ch.qos.logback.core.spi.ContextAware;
 import ch.qos.logback.core.spi.LifeCycle;
 import ch.qos.logback.core.util.AggregationType;
 import java.util.List;
@@ -36,9 +37,10 @@ public class LogbackObjectPropertiesAssembler {
      *
      * @param logbackObject object to set property values to
      * @param property2ValueList list with even items,
+     * @param context Logback context
      * @return the given object
      */
-    public static Object assemble(Object logbackObject, List<Map<String, Object>> property2ValueList) {
+    public static Object assemble(Object logbackObject, List<Map<String, Object>> property2ValueList, Context context) {
         PropertySetter setter = new PropertySetter(logbackObject);
         setter.setContext((Context) LoggerFactory.getILoggerFactory());
 
@@ -52,15 +54,22 @@ public class LogbackObjectPropertiesAssembler {
                     case AS_BASIC_PROPERTY:
                         setter.setProperty(propertyName, (String) value);
                         break;
+                    case AS_COMPLEX_PROPERTY:
+                        setter.setComplexProperty(propertyName, value);
+                        break;
                     case AS_COMPLEX_PROPERTY_COLLECTION:
                         setter.addComplexProperty(propertyName, value);
                         break;
                     default:
-                        throw new UnsupportedOperationException("Not implemented yet for AggregationType: " + setterType);
+                        String msg = String.format("[Property: %s, AggregationType: %s]", propertyName, setterType);
+                        throw new UnsupportedOperationException(msg);
                 }
             }
         }
 
+        if (logbackObject instanceof ContextAware) {
+            ((ContextAware) logbackObject).setContext(context);
+        }
         if (logbackObject instanceof LifeCycle) {
             ((LifeCycle) logbackObject).start();
         }
