@@ -28,6 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class MockAppender extends AppenderBase<ILoggingEvent> {
 
+    private List<String> aliases = new ArrayList<String>();
     private List<String> messageList = new ArrayList<String>();
     private Layout<ILoggingEvent> layout = FormattedMessageLayout.INSTANCE;
     public long id;
@@ -47,6 +48,14 @@ public class MockAppender extends AppenderBase<ILoggingEvent> {
 
     public void setLayout(Layout<ILoggingEvent> layout) {
         this.layout = layout;
+    }
+
+    public void addAlias(String alias) {
+        aliases.add(alias);
+    }
+
+    public String[] getAliases() {
+        return aliases.toArray(new String[aliases.size()]);
     }
 
     public void setId(long id) {

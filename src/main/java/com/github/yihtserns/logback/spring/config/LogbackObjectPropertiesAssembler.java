@@ -54,6 +54,9 @@ public class LogbackObjectPropertiesAssembler {
                     case AS_BASIC_PROPERTY:
                         setter.setProperty(propertyName, (String) value);
                         break;
+                    case AS_BASIC_PROPERTY_COLLECTION:
+                        setter.addBasicProperty(propertyName, (String) value);
+                        break;
                     case AS_COMPLEX_PROPERTY:
                         setter.setComplexProperty(propertyName, value);
                         break;

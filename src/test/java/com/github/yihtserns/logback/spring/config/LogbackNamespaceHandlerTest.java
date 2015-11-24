@@ -132,6 +132,21 @@ public class LogbackNamespaceHandlerTest {
     }
 
     @Test
+    public void canAddMultipleSimplePropertyIntoAppender() throws Exception {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <alias>fake</alias>\n"
+                + "    <alias>unreal</alias>\n"
+                + "</appender>");
+
+        MockAppender mock = appContext.getBean(MockAppender.class);
+        assertThat(mock.getAliases(), is(new String[]{"fake", "unreal"}));
+    }
+
+    @Test
     public void canAddComplexValueIntoAppender() throws Exception {
         appContext = newApplicationContextFor(
                 "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
