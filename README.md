@@ -1,6 +1,6 @@
 Logback Spring Config
 ---------------------
-Extends [`Logback Extensions :: Spring`][1] to allow moving appender XML configuration from `logback.xml` to Spring XML without much change.
+Extends [`Logback Extensions :: Spring`](https://github.com/qos-ch/logback-extensions/wiki/Spring) to allow moving appender XML configuration from `logback.xml` to Spring XML without much change, e.g. from:
 
 ```xml
 <!-- logback.xml -->
@@ -37,7 +37,7 @@ to
 <!-- Spring XML -->
 <beans ... xsi:schemaLocation="... http://logback.qos.ch logback-lenient.xsd">
 
-    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender" xmlns="http://logback.qos.ch">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%date %-5level [%thread] %logger{36} %m%n</pattern>
         </encoder>
@@ -45,5 +45,3 @@ to
 
 </beans>
 ```
-
-[1] https://github.com/qos-ch/logback-extensions/wiki/Spring
