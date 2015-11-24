@@ -37,41 +37,19 @@ import org.springframework.core.io.ByteArrayResource;
  */
 public class LogbackNamespaceHandlerTest {
 
-    private static final String XML
-            = "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
-            + "          xmlns=\"http://logback.qos.ch\"\n"
-            + "          xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-            + "          xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
-            + "    <filter class=\"com.github.yihtserns.logback.spring.config.testutil.SpecialWordFilter\"/>\n"
-            + "</appender>";
-    private GenericApplicationContext appContext = new GenericApplicationContext();
     private Logger log = LoggerFactory.getLogger(getClass());
-    private MockAppender mock;
+    private GenericApplicationContext appContext;
 
     @Before
-    public void init() throws Exception {
-        // Setup Spring
-        {
-            XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(appContext);
-            xmlReader.loadBeanDefinitions(new ByteArrayResource(XML.getBytes(Charset.forName("UTF-8"))));
+    public void initLogback() throws Exception {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        JoranConfigurator joranConfigurator = new JoranConfigurator();
+        joranConfigurator.setContext(loggerContext);
 
-            appContext.refresh();
-            appContext.start();
+        loggerContext.reset();
+        joranConfigurator.doConfigure(getClass().getResource("/logback-test.xml"));
 
-            mock = appContext.getBean(MockAppender.class);
-        }
-
-        // Setup Logback
-        {
-            LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-            JoranConfigurator joranConfigurator = new JoranConfigurator();
-            joranConfigurator.setContext(loggerContext);
-
-            loggerContext.reset();
-            joranConfigurator.doConfigure(getClass().getResource("/logback-test.xml"));
-
-            StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
-        }
+        StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
     }
 
     @After
@@ -82,15 +60,29 @@ public class LogbackNamespaceHandlerTest {
 
     @Test
     public void canConfigureAppenderInSpringXml() {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\"/>\n");
+
         final String expectedMessage = "Configured successfully!";
         log.info(expectedMessage);
 
+        MockAppender mock = appContext.getBean(MockAppender.class);
         mock.assertLogged(expectedMessage);
     }
 
     @Test
     public void shouldInjectLoggerContextIntoAppender() throws Exception {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\"/>\n");
         log.info("To activate lazily-loaded appender");
+
+        MockAppender mock = appContext.getBean(MockAppender.class);
         mock.reset();
 
         Context loggerContext = mock.getContext();
@@ -101,6 +93,14 @@ public class LogbackNamespaceHandlerTest {
 
     @Test
     public void canConfigureFilter() throws Exception {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <filter class=\"com.github.yihtserns.logback.spring.config.testutil.SpecialWordFilter\"/>\n"
+                + "</appender>");
+
         final String expectedMessage1 = "Accepted";
         final String expectedMessage2 = "Accepted 2";
 
@@ -108,6 +108,18 @@ public class LogbackNamespaceHandlerTest {
         log.info("[DROP] Rejected");
         log.info(expectedMessage2);
 
+        MockAppender mock = appContext.getBean(MockAppender.class);
         mock.assertLogged(expectedMessage1, expectedMessage2);
+    }
+
+    private static GenericApplicationContext newApplicationContextFor(String xml) {
+        GenericApplicationContext applicationContext = new GenericApplicationContext();
+        XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);
+        xmlReader.loadBeanDefinitions(new ByteArrayResource(xml.getBytes(Charset.forName("UTF-8"))));
+
+        applicationContext.refresh();
+        applicationContext.start();
+
+        return applicationContext;
     }
 }
