@@ -147,35 +147,16 @@ public class LogbackNamespaceHandlerTest {
     }
 
     @Test
-    public void canAddComplexValueIntoAppender() throws Exception {
-        appContext = newApplicationContextFor(
-                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
-                + " xmlns=\"http://logback.qos.ch\"\n"
-                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
-                + "    <filter class=\"com.github.yihtserns.logback.spring.config.testutil.SpecialWordFilter\"/>\n"
-                + "</appender>");
-
-        final String expectedMessage1 = "Accepted";
-        final String expectedMessage2 = "Accepted 2";
-
-        log.info(expectedMessage1);
-        log.info("[DROP] Rejected");
-        log.info(expectedMessage2);
-
-        MockAppender mock = appContext.getBean(MockAppender.class);
-        mock.assertLogged(expectedMessage1, expectedMessage2);
-    }
-
-    @Test
     public void canConfigureFilter() throws Exception {
         appContext = newApplicationContextFor(
                 "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
                 + " xmlns=\"http://logback.qos.ch\"\n"
                 + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
                 + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
-                + "    <filter class=\"com.github.yihtserns.logback.spring.config.testutil.SpecialWordFilter\">\n"
-                + "        <specialWord>Rejected</specialWord>\n"
+                + "    <filter class=\"ch.qos.logback.classic.filter.LevelFilter\">\n"
+                + "        <level>ERROR</level>\n"
+                + "        <onMatch>DENY</onMatch>\n"
+                + "        <onMismatch>NEUTRAL</onMismatch>\n"
                 + "    </filter>\n"
                 + "</appender>");
 
@@ -183,7 +164,7 @@ public class LogbackNamespaceHandlerTest {
         final String expectedMessage2 = "Accepted 2";
 
         log.info(expectedMessage1);
-        log.info("Rejected");
+        log.error("Rejected");
         log.info(expectedMessage2);
 
         MockAppender mock = appContext.getBean(MockAppender.class);
@@ -197,9 +178,15 @@ public class LogbackNamespaceHandlerTest {
                 + " xmlns=\"http://logback.qos.ch\"\n"
                 + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
                 + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
-                + "    <filter class=\"com.github.yihtserns.logback.spring.config.testutil.SpecialWordFilter\"/>\n"
-                + "    <filter class=\"com.github.yihtserns.logback.spring.config.testutil.SpecialWordFilter\">\n"
-                + "        <specialWord>Rejected</specialWord>\n"
+                + "    <filter class=\"ch.qos.logback.classic.filter.LevelFilter\">\n"
+                + "        <level>WARN</level>\n"
+                + "        <onMatch>DENY</onMatch>\n"
+                + "        <onMismatch>NEUTRAL</onMismatch>\n"
+                + "    </filter>\n"
+                + "    <filter class=\"ch.qos.logback.classic.filter.LevelFilter\">\n"
+                + "        <level>ERROR</level>\n"
+                + "        <onMatch>DENY</onMatch>\n"
+                + "        <onMismatch>NEUTRAL</onMismatch>\n"
                 + "    </filter>\n"
                 + "</appender>");
 
@@ -207,9 +194,9 @@ public class LogbackNamespaceHandlerTest {
         final String expectedMessage2 = "Accepted 2";
 
         log.info(expectedMessage1);
-        log.info("Rejected");
+        log.warn("Rejected");
         log.info(expectedMessage2);
-        log.info("[DROP] Not Accepted");
+        log.error("Rejected 2");
 
         MockAppender mock = appContext.getBean(MockAppender.class);
         mock.assertLogged(expectedMessage1, expectedMessage2);
