@@ -59,13 +59,11 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                 for (Element childElement : DomUtils.getChildElements(element)) {
                     String localName = childElement.getLocalName();
 
-                    String propertyName;
-                    Object propertyValue;
+                    ManagedMap<String, Object> property2Value;
                     if ("appender-ref".equals(localName)) {
                         String appenderName = childElement.getAttribute("ref");
 
-                        propertyName = "appender";
-                        propertyValue = new RuntimeBeanReference(appenderName);
+                        property2Value = pair("appender", new RuntimeBeanReference(appenderName));
                     } else {
                         if (StringUtils.hasText(childElement.getAttribute("class"))) {
                             // Complex property
@@ -74,8 +72,7 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                                     parserContext.getDelegate(),
                                     builder.getRawBeanDefinition());
 
-                            propertyName = localName;
-                            propertyValue = parse(childElement, childParserContext);
+                            property2Value = pair(localName, parse(childElement, childParserContext));
                         } else {
                             String body = DomUtils.getTextValue(childElement);
                             if (!StringUtils.hasText(body)) {
@@ -84,20 +81,21 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                                 return;
                             } else {
                                 // Simple property
-                                propertyName = localName;
-                                propertyValue = body;
+                                property2Value = pair(localName, body);
                             }
-
                         }
                     }
-
-                    ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
-                    property2Value.put(propertyName, propertyValue);
-
                     property2ValueList.add(property2Value);
                 }
                 builder.addConstructorArgValue(property2ValueList);
                 builder.addConstructorArgValue(LoggerFactory.getILoggerFactory());
+            }
+
+            private ManagedMap<String, Object> pair(String propertyName, Object propertyValue) {
+                ManagedMap<String, Object> pair = new ManagedMap<String, Object>();
+                pair.put(propertyName, propertyValue);
+
+                return pair;
             }
 
             private void registerContextHolderIfNotYet(ParserContext parserContext) {
