@@ -57,38 +57,48 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
                 ManagedList<ManagedMap<String, Object>> property2ValueList = new ManagedList<ManagedMap<String, Object>>();
                 for (Element childElement : DomUtils.getChildElements(element)) {
-                    String localName = childElement.getLocalName();
+                    ManagedMap<String, Object> property2Value = parsePropertyValue(childElement, parserContext, builder);
 
-                    ManagedMap<String, Object> property2Value;
-                    if ("appender-ref".equals(localName)) {
-                        String appenderName = childElement.getAttribute("ref");
-
-                        property2Value = pair("appender", new RuntimeBeanReference(appenderName));
-                    } else {
-                        if (StringUtils.hasText(childElement.getAttribute("class"))) {
-                            // Complex property
-                            ParserContext childParserContext = new ParserContext(
-                                    parserContext.getReaderContext(),
-                                    parserContext.getDelegate(),
-                                    builder.getRawBeanDefinition());
-
-                            property2Value = pair(localName, parse(childElement, childParserContext));
-                        } else {
-                            String body = DomUtils.getTextValue(childElement);
-                            if (!StringUtils.hasText(body)) {
-                                String msg = String.format("<%s> property should have either 'class' attribute or text body.", localName);
-                                parserContext.getReaderContext().error(msg, element);
-                                return;
-                            } else {
-                                // Simple property
-                                property2Value = pair(localName, body);
-                            }
-                        }
+                    if (property2Value != null) {
+                        property2ValueList.add(property2Value);
                     }
-                    property2ValueList.add(property2Value);
                 }
                 builder.addConstructorArgValue(property2ValueList);
                 builder.addConstructorArgValue(LoggerFactory.getILoggerFactory());
+            }
+
+            private ManagedMap<String, Object> parsePropertyValue(
+                    Element propertyElement,
+                    ParserContext parserContext,
+                    BeanDefinitionBuilder builder) {
+                String localName = propertyElement.getLocalName();
+
+                if ("appender-ref".equals(localName)) {
+                    String appenderName = propertyElement.getAttribute("ref");
+
+                    return pair("appender", new RuntimeBeanReference(appenderName));
+                }
+
+                if (StringUtils.hasText(propertyElement.getAttribute("class"))) {
+                    // Complex property
+                    ParserContext childParserContext = new ParserContext(
+                            parserContext.getReaderContext(),
+                            parserContext.getDelegate(),
+                            builder.getRawBeanDefinition());
+
+                    return pair(localName, parse(propertyElement, childParserContext));
+                }
+
+                String body = DomUtils.getTextValue(propertyElement);
+                if (!StringUtils.hasText(body)) {
+                    String msg = String.format("<%s> property should have either 'class' attribute or text body.", localName);
+                    parserContext.getReaderContext().error(msg, propertyElement);
+
+                    return null;
+                }
+
+                // Simple property
+                return pair(localName, body);
             }
 
             private ManagedMap<String, Object> pair(String propertyName, Object propertyValue) {
