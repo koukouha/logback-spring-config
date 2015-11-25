@@ -37,16 +37,17 @@ public class LogbackObjectPropertiesAssembler {
      *
      * @param logbackObject object to set property values to
      * @param property2ValueList property-to-value pairs
-     * @param context Logback context
      * @return the given object
      */
-    public static Object assemble(Object logbackObject, List<Map<String, Object>> property2ValueList, Context context) {
+    public static Object assemble(Object logbackObject, List<Map<String, Object>> property2ValueList) {
+        Context logbackContext = (Context) LoggerFactory.getILoggerFactory();
+
         if (logbackObject instanceof ContextAware) {
-            ((ContextAware) logbackObject).setContext(context);
+            ((ContextAware) logbackObject).setContext(logbackContext);
         }
 
         PropertySetter setter = new PropertySetter(logbackObject);
-        setter.setContext((Context) LoggerFactory.getILoggerFactory());
+        setter.setContext(logbackContext);
 
         for (Map<String, Object> property2Value : property2ValueList) {
             for (Entry<String, Object> entry : property2Value.entrySet()) {

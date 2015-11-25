@@ -79,7 +79,6 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                 }
             }
             builder.addConstructorArgValue(property2ValueList);
-            builder.addConstructorArgValue(LoggerFactory.getILoggerFactory());
         }
 
         private ManagedMap<String, Object> parsePropertyValue(
