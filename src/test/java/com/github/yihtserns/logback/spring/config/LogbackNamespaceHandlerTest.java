@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.After;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
@@ -42,6 +44,8 @@ import org.xml.sax.InputSource;
 public class LogbackNamespaceHandlerTest {
 
     private static final String LOGGER_NAME = "test";
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
     private Logger log = LoggerFactory.getLogger(LOGGER_NAME);
     private GenericApplicationContext appContext;
 
@@ -241,6 +245,20 @@ public class LogbackNamespaceHandlerTest {
                 "INFO - Information",
                 "WARN - Warning",
                 "ERROR - Problem");
+    }
+
+    @Test
+    public void shouldThrowWhenPropertyHasNeitherClassAttributeNorTextBody() throws Exception {
+        thrown.expectMessage("<encoder> property should have either 'class' attribute or text body.");
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"ch.qos.logback.core.ConsoleAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <encoder>\n"
+                + "        <pattern>%level - %msg</pattern>\n"
+                + "    </encoder>\n"
+                + "</appender>");
     }
 
     private static GenericApplicationContext newApplicationContextFor(String xml) {

@@ -66,19 +66,29 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
                         propertyName = "appender";
                         propertyValue = new RuntimeBeanReference(appenderName);
-                    } else if (StringUtils.hasText(childElement.getAttribute("class"))) {
-                        // Complex property
-                        ParserContext childParserContext = new ParserContext(
-                                parserContext.getReaderContext(),
-                                parserContext.getDelegate(),
-                                builder.getRawBeanDefinition());
-
-                        propertyName = localName;
-                        propertyValue = parse(childElement, childParserContext);
                     } else {
-                        // Simple property
-                        propertyName = localName;
-                        propertyValue = childElement.getTextContent();
+                        if (StringUtils.hasText(childElement.getAttribute("class"))) {
+                            // Complex property
+                            ParserContext childParserContext = new ParserContext(
+                                    parserContext.getReaderContext(),
+                                    parserContext.getDelegate(),
+                                    builder.getRawBeanDefinition());
+
+                            propertyName = localName;
+                            propertyValue = parse(childElement, childParserContext);
+                        } else {
+                            String body = DomUtils.getTextValue(childElement);
+                            if (!StringUtils.hasText(body)) {
+                                String msg = String.format("<%s> property should have either 'class' attribute or text body.", localName);
+                                parserContext.getReaderContext().error(msg, element);
+                                return;
+                            } else {
+                                // Simple property
+                                propertyName = localName;
+                                propertyValue = body;
+                            }
+
+                        }
                     }
 
                     ManagedMap<String, Object> property2Value = new ManagedMap<String, Object>();
