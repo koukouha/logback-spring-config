@@ -16,7 +16,6 @@
 package com.github.yihtserns.logback.spring.config;
 
 import ch.qos.logback.ext.spring.ApplicationContextHolder;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
