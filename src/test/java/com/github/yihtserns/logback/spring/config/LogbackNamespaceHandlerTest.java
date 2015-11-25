@@ -19,6 +19,7 @@ import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.AsyncAppenderBase;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.util.StatusPrinter;
 import com.github.yihtserns.logback.spring.config.testutil.MockAppender;
@@ -52,6 +53,9 @@ public class LogbackNamespaceHandlerTest {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         JoranConfigurator joranConfigurator = new JoranConfigurator();
         joranConfigurator.setContext(loggerContext);
+
+        // http://jira.qos.ch/browse/LOGBACK-444
+        loggerContext.getStatusManager().clear();
 
         loggerContext.reset();
         joranConfigurator.doConfigure(new InputSource(new StringReader(
