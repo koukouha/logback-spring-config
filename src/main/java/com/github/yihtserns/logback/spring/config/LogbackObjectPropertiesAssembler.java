@@ -41,6 +41,10 @@ public class LogbackObjectPropertiesAssembler {
      * @return the given object
      */
     public static Object assemble(Object logbackObject, List<Map<String, Object>> property2ValueList, Context context) {
+        if (logbackObject instanceof ContextAware) {
+            ((ContextAware) logbackObject).setContext(context);
+        }
+
         PropertySetter setter = new PropertySetter(logbackObject);
         setter.setContext((Context) LoggerFactory.getILoggerFactory());
 
@@ -70,9 +74,6 @@ public class LogbackObjectPropertiesAssembler {
             }
         }
 
-        if (logbackObject instanceof ContextAware) {
-            ((ContextAware) logbackObject).setContext(context);
-        }
         if (logbackObject instanceof LifeCycle) {
             ((LifeCycle) logbackObject).start();
         }
