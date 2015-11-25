@@ -65,9 +65,9 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                 builder.addPropertyValue("name", name);
             }
 
-            String appenderClassName = element.getAttribute("class");
-            BeanDefinition appenderBd = BeanDefinitionBuilder.genericBeanDefinition(appenderClassName).getBeanDefinition();
-            builder.addConstructorArgValue(appenderBd);
+            String logbackObjectClassName = element.getAttribute("class");
+            BeanDefinition logbackObjectBd = BeanDefinitionBuilder.genericBeanDefinition(logbackObjectClassName).getBeanDefinition();
+            builder.addConstructorArgValue(logbackObjectBd);
 
             ManagedList<ManagedMap<String, Object>> property2ValueList = new ManagedList<ManagedMap<String, Object>>();
             for (Element childElement : DomUtils.getChildElements(element)) {
