@@ -43,6 +43,19 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
     private class LogbackObjectBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
+        /**
+         * Only called when not nested element.
+         */
+        @Override
+        protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) {
+            return element.getAttribute("name");
+        }
+
+        @Override
+        protected Class<?> getBeanClass(Element element) {
+            return LogbackObjectPropertiesAssembler.class;
+        }
+
         @Override
         protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
             registerContextHolderIfNotYet(parserContext);
@@ -118,16 +131,6 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                 BeanDefinition bd = BeanDefinitionBuilder.rootBeanDefinition(ApplicationContextHolder.class).getBeanDefinition();
                 parserContext.registerBeanComponent(new BeanComponentDefinition(bd, contextHolderBeanName));
             }
-        }
-
-        @Override
-        protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
-            return element.getAttribute("name");
-        }
-
-        @Override
-        protected Class<?> getBeanClass(Element element) {
-            return LogbackObjectPropertiesAssembler.class;
         }
     }
 }
