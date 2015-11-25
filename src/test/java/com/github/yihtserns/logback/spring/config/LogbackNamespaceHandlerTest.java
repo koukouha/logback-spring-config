@@ -19,7 +19,6 @@ import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.AsyncAppenderBase;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.util.StatusPrinter;
 import com.github.yihtserns.logback.spring.config.testutil.MockAppender;
