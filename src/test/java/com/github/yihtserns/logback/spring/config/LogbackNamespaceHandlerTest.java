@@ -23,7 +23,6 @@ import ch.qos.logback.core.Context;
 import ch.qos.logback.core.util.StatusPrinter;
 import com.github.yihtserns.logback.spring.config.testutil.MockAppender;
 import java.io.StringReader;
-import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.io.ByteArrayResource;
 import org.xml.sax.InputSource;
 
 /**
@@ -264,7 +262,8 @@ public class LogbackNamespaceHandlerTest {
     private static GenericApplicationContext newApplicationContextFor(String xml) {
         GenericApplicationContext applicationContext = new GenericApplicationContext();
         XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);
-        xmlReader.loadBeanDefinitions(new ByteArrayResource(xml.getBytes(Charset.forName("UTF-8"))));
+        xmlReader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
+        xmlReader.loadBeanDefinitions(new InputSource(new StringReader(xml)));
 
         applicationContext.refresh();
         applicationContext.start();
