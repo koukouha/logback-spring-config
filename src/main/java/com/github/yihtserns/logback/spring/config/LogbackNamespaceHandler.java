@@ -38,95 +38,96 @@ import org.w3c.dom.Element;
 public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
     public void init() {
-        registerBeanDefinitionParser("appender", new AbstractSingleBeanDefinitionParser() {
-
-            @Override
-            protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-                registerContextHolderIfNotYet(parserContext);
-
-                builder.setFactoryMethod("assemble");
-
-                String name = element.getAttribute("name");
-                if (StringUtils.hasText(name)) {
-                    builder.addPropertyValue("name", name);
-                }
-
-                String appenderClassName = element.getAttribute("class");
-                BeanDefinition appenderBd = BeanDefinitionBuilder.genericBeanDefinition(appenderClassName).getBeanDefinition();
-                builder.addConstructorArgValue(appenderBd);
-
-                ManagedList<ManagedMap<String, Object>> property2ValueList = new ManagedList<ManagedMap<String, Object>>();
-                for (Element childElement : DomUtils.getChildElements(element)) {
-                    ManagedMap<String, Object> property2Value = parsePropertyValue(childElement, parserContext, builder);
-
-                    if (property2Value != null) {
-                        property2ValueList.add(property2Value);
-                    }
-                }
-                builder.addConstructorArgValue(property2ValueList);
-                builder.addConstructorArgValue(LoggerFactory.getILoggerFactory());
-            }
-
-            private ManagedMap<String, Object> parsePropertyValue(
-                    Element propertyElement,
-                    ParserContext parserContext,
-                    BeanDefinitionBuilder builder) {
-                String localName = propertyElement.getLocalName();
-
-                if ("appender-ref".equals(localName)) {
-                    String appenderName = propertyElement.getAttribute("ref");
-
-                    return pair("appender", new RuntimeBeanReference(appenderName));
-                }
-
-                if (StringUtils.hasText(propertyElement.getAttribute("class"))) {
-                    // Complex property
-                    ParserContext childParserContext = new ParserContext(
-                            parserContext.getReaderContext(),
-                            parserContext.getDelegate(),
-                            builder.getRawBeanDefinition());
-
-                    return pair(localName, parse(propertyElement, childParserContext));
-                }
-
-                String body = DomUtils.getTextValue(propertyElement);
-                if (!StringUtils.hasText(body)) {
-                    String msg = String.format("<%s> property should have either 'class' attribute or text body.", localName);
-                    parserContext.getReaderContext().error(msg, propertyElement);
-
-                    return null;
-                }
-
-                // Simple property
-                return pair(localName, body);
-            }
-
-            private ManagedMap<String, Object> pair(String propertyName, Object propertyValue) {
-                ManagedMap<String, Object> pair = new ManagedMap<String, Object>();
-                pair.put(propertyName, propertyValue);
-
-                return pair;
-            }
-
-            private void registerContextHolderIfNotYet(ParserContext parserContext) {
-                final String contextHolderBeanName = "logback.applicationContextHolder";
-
-                if (!parserContext.getRegistry().containsBeanDefinition(contextHolderBeanName)) {
-                    BeanDefinition bd = BeanDefinitionBuilder.rootBeanDefinition(ApplicationContextHolder.class).getBeanDefinition();
-                    parserContext.registerBeanComponent(new BeanComponentDefinition(bd, contextHolderBeanName));
-                }
-            }
-
-            @Override
-            protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
-                return element.getAttribute("name");
-            }
-
-            @Override
-            protected Class<?> getBeanClass(Element element) {
-                return LogbackObjectPropertiesAssembler.class;
-            }
-        });
+        registerBeanDefinitionParser("appender", new LogbackObjectBeanDefinitionParser());
     }
 
+    private class LogbackObjectBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+        @Override
+        protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+            registerContextHolderIfNotYet(parserContext);
+
+            builder.setFactoryMethod("assemble");
+
+            String name = element.getAttribute("name");
+            if (StringUtils.hasText(name)) {
+                builder.addPropertyValue("name", name);
+            }
+
+            String appenderClassName = element.getAttribute("class");
+            BeanDefinition appenderBd = BeanDefinitionBuilder.genericBeanDefinition(appenderClassName).getBeanDefinition();
+            builder.addConstructorArgValue(appenderBd);
+
+            ManagedList<ManagedMap<String, Object>> property2ValueList = new ManagedList<ManagedMap<String, Object>>();
+            for (Element childElement : DomUtils.getChildElements(element)) {
+                ManagedMap<String, Object> property2Value = parsePropertyValue(childElement, parserContext, builder);
+
+                if (property2Value != null) {
+                    property2ValueList.add(property2Value);
+                }
+            }
+            builder.addConstructorArgValue(property2ValueList);
+            builder.addConstructorArgValue(LoggerFactory.getILoggerFactory());
+        }
+
+        private ManagedMap<String, Object> parsePropertyValue(
+                Element propertyElement,
+                ParserContext parserContext,
+                BeanDefinitionBuilder builder) {
+            String localName = propertyElement.getLocalName();
+
+            if ("appender-ref".equals(localName)) {
+                String appenderName = propertyElement.getAttribute("ref");
+
+                return pair("appender", new RuntimeBeanReference(appenderName));
+            }
+
+            if (StringUtils.hasText(propertyElement.getAttribute("class"))) {
+                // Complex property
+                ParserContext childParserContext = new ParserContext(
+                        parserContext.getReaderContext(),
+                        parserContext.getDelegate(),
+                        builder.getRawBeanDefinition());
+
+                return pair(localName, parse(propertyElement, childParserContext));
+            }
+
+            String body = DomUtils.getTextValue(propertyElement);
+            if (!StringUtils.hasText(body)) {
+                String msg = String.format("<%s> property should have either 'class' attribute or text body.", localName);
+                parserContext.getReaderContext().error(msg, propertyElement);
+
+                return null;
+            }
+
+            // Simple property
+            return pair(localName, body);
+        }
+
+        private ManagedMap<String, Object> pair(String propertyName, Object propertyValue) {
+            ManagedMap<String, Object> pair = new ManagedMap<String, Object>();
+            pair.put(propertyName, propertyValue);
+
+            return pair;
+        }
+
+        private void registerContextHolderIfNotYet(ParserContext parserContext) {
+            final String contextHolderBeanName = "logback.applicationContextHolder";
+
+            if (!parserContext.getRegistry().containsBeanDefinition(contextHolderBeanName)) {
+                BeanDefinition bd = BeanDefinitionBuilder.rootBeanDefinition(ApplicationContextHolder.class).getBeanDefinition();
+                parserContext.registerBeanComponent(new BeanComponentDefinition(bd, contextHolderBeanName));
+            }
+        }
+
+        @Override
+        protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
+            return element.getAttribute("name");
+        }
+
+        @Override
+        protected Class<?> getBeanClass(Element element) {
+            return LogbackObjectPropertiesAssembler.class;
+        }
+    }
 }
