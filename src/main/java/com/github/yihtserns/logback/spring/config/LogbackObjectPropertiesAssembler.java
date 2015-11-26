@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.NotWritablePropertyException;
 
 /**
  * @author yihtserns
@@ -73,9 +74,14 @@ public class LogbackObjectPropertiesAssembler {
                     case AS_COMPLEX_PROPERTY_COLLECTION:
                         setter.addComplexProperty(propertyName, value);
                         break;
-                    default:
+                    case NOT_FOUND: {
+                        String msg = String.format("Bean property '%s' is not writable or has an invalid setter/adder method.", propertyName);
+                        throw new NotWritablePropertyException(logbackObject.getClass(), propertyName, msg);
+                    }
+                    default: {
                         String msg = String.format("[Property: %s, AggregationType: %s]", propertyName, setterType);
                         throw new UnsupportedOperationException(msg);
+                    }
                 }
 
                 if (value instanceof LifeCycle && NoAutoStartUtil.notMarkedWithNoAutoStart(value)) {

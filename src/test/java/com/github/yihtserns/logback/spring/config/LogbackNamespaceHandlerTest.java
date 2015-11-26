@@ -311,6 +311,19 @@ public class LogbackNamespaceHandlerTest {
         mock.assertLogged("[mock] <-- parent name --> (mock)");
     }
 
+    @Test
+    public void shouldHaveBetterMessageForWhenPropertyNameIsWrong() throws Exception {
+        thrown.expectMessage("Invalid property 'doesNotExist' of bean class [com.github.yihtserns.logback.spring.config.testutil.MockAppender]:"
+                + " Bean property 'doesNotExist' is not writable or has an invalid setter/adder method.");
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <doesNotExist>Won't be used</doesNotExist>\n"
+                + "</appender>");
+    }
+
     private static GenericApplicationContext newApplicationContextFor(String xml) {
         GenericApplicationContext applicationContext = new GenericApplicationContext();
         XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);
