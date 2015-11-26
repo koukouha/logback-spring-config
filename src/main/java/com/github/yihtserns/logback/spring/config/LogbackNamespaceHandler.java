@@ -35,6 +35,18 @@ import org.w3c.dom.Element;
  */
 public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
+    @Override
+    public BeanDefinition parse(Element element, ParserContext parserContext) {
+        final String contextHolderBeanName = "logback.applicationContextHolder";
+
+        if (!parserContext.getRegistry().containsBeanDefinition(contextHolderBeanName)) {
+            BeanDefinition bd = BeanDefinitionBuilder.rootBeanDefinition(ApplicationContextHolder.class).getBeanDefinition();
+            parserContext.registerBeanComponent(new BeanComponentDefinition(bd, contextHolderBeanName));
+        }
+
+        return super.parse(element, parserContext);
+    }
+
     public void init() {
         registerBeanDefinitionParser("appender", new LogbackObjectBeanDefinitionParser());
     }
@@ -56,8 +68,6 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
         @Override
         protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-            registerContextHolderIfNotYet(parserContext);
-
             builder.setFactoryMethod("assemble");
 
             String logbackObjectClassName = element.getAttribute("class");
@@ -118,15 +128,6 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
             pair.put(propertyName, propertyValue);
 
             return pair;
-        }
-
-        private void registerContextHolderIfNotYet(ParserContext parserContext) {
-            final String contextHolderBeanName = "logback.applicationContextHolder";
-
-            if (!parserContext.getRegistry().containsBeanDefinition(contextHolderBeanName)) {
-                BeanDefinition bd = BeanDefinitionBuilder.rootBeanDefinition(ApplicationContextHolder.class).getBeanDefinition();
-                parserContext.registerBeanComponent(new BeanComponentDefinition(bd, contextHolderBeanName));
-            }
         }
     }
 }
