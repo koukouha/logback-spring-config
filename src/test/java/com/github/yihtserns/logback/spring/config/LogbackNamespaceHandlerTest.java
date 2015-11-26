@@ -105,8 +105,12 @@ public class LogbackNamespaceHandlerTest {
         mock.assertLogged(expectedMessage);
     }
 
+    /**
+     * {@link ch.qos.logback.ext.spring.DelegatingLogbackAppender#getDelegate()} seems to be setting logger context and
+     * starting the delegate appender, so my code is not going to bother doing that.
+     */
     @Test
-    public void shouldInjectLoggerContextIntoAppender() throws Exception {
+    public void appenderWouldBeInitializedByDelegatingLogbackAppender() throws Exception {
         appContext = newApplicationContextFor(
                 "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
                 + " xmlns=\"http://logback.qos.ch\"\n"
@@ -114,10 +118,17 @@ public class LogbackNamespaceHandlerTest {
                 + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\"/>\n");
 
         MockAppender mock = appContext.getBean(MockAppender.class);
-        Context loggerContext = mock.getContext();
+        log.info("Force DelegatingLogbackAppender.getDelegate() to be called");
 
-        assertThat(loggerContext, is(not(nullValue())));
-        assertThat(loggerContext, is((Context) LoggerFactory.getILoggerFactory()));
+        {
+            assertThat(mock.isStarted(), is(true));
+        }
+        {
+            Context loggerContext = mock.getContext();
+
+            assertThat(loggerContext, is(not(nullValue())));
+            assertThat(loggerContext, is((Context) LoggerFactory.getILoggerFactory()));
+        }
     }
 
     @Test

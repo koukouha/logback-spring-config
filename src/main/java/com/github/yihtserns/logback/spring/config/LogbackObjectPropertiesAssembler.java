@@ -42,10 +42,6 @@ public class LogbackObjectPropertiesAssembler {
     public static Object assemble(Object logbackObject, List<Map<String, Object>> property2ValueList) {
         Context logbackContext = (Context) LoggerFactory.getILoggerFactory();
 
-        if (logbackObject instanceof ContextAware) {
-            ((ContextAware) logbackObject).setContext(logbackContext);
-        }
-
         PropertySetter setter = new PropertySetter(logbackObject);
         setter.setContext(logbackContext);
 
@@ -53,6 +49,14 @@ public class LogbackObjectPropertiesAssembler {
             for (Entry<String, Object> entry : property2Value.entrySet()) {
                 String propertyName = entry.getKey();
                 Object value = entry.getValue();
+
+                if (value instanceof ContextAware) {
+                    ((ContextAware) value).setContext(logbackContext);
+                }
+                PropertySetter childSetter = new PropertySetter(value);
+                if (childSetter.computeAggregationType("parent") == AggregationType.AS_COMPLEX_PROPERTY) {
+                    childSetter.setComplexProperty("parent", logbackObject);
+                }
 
                 AggregationType setterType = setter.computeAggregationType(propertyName);
                 switch (setterType) {
@@ -63,11 +67,6 @@ public class LogbackObjectPropertiesAssembler {
                         setter.addBasicProperty(propertyName, (String) value);
                         break;
                     case AS_COMPLEX_PROPERTY:
-                        PropertySetter childSetter = new PropertySetter(value);
-                        if (childSetter.computeAggregationType("parent") == AggregationType.AS_COMPLEX_PROPERTY) {
-                            childSetter.setComplexProperty("parent", logbackObject);
-                        }
-
                         setter.setComplexProperty(propertyName, value);
                         break;
                     case AS_COMPLEX_PROPERTY_COLLECTION:
