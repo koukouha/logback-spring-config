@@ -50,6 +50,10 @@ public class MockAppender extends AppenderBase<ILoggingEvent> {
         this.layout = layout;
     }
 
+    public Layout<ILoggingEvent> getLayout() {
+        return layout;
+    }
+
     public void addAlias(String alias) {
         aliases.add(alias);
     }

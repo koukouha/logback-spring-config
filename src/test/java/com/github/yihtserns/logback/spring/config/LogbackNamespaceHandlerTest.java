@@ -21,6 +21,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.util.StatusPrinter;
+import com.github.yihtserns.logback.spring.config.testutil.ChildFormattedMessageLayout;
 import com.github.yihtserns.logback.spring.config.testutil.MockAppender;
 import java.io.StringReader;
 import org.junit.Before;
@@ -260,6 +261,25 @@ public class LogbackNamespaceHandlerTest {
                 + "        <pattern>%level - %msg</pattern>\n"
                 + "    </encoder>\n"
                 + "</appender>");
+    }
+
+    @Test
+    public void shouldInjectParentToLogbackObjectThatHasParentSetter() throws Exception {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <layout class=\"com.github.yihtserns.logback.spring.config.testutil.ChildFormattedMessageLayout\"/>\n"
+                + "</appender>");
+
+        log.info("<-- parent name");
+
+        MockAppender mock = appContext.getBean(MockAppender.class);
+        mock.assertLogged("[mock] <-- parent name");
+
+        Appender parent = ((ChildFormattedMessageLayout) mock.getLayout()).getParent();
+        assertThat(parent, is(sameInstance((Appender) mock)));
     }
 
     private static GenericApplicationContext newApplicationContextFor(String xml) {

@@ -63,6 +63,11 @@ public class LogbackObjectPropertiesAssembler {
                         setter.addBasicProperty(propertyName, (String) value);
                         break;
                     case AS_COMPLEX_PROPERTY:
+                        PropertySetter childSetter = new PropertySetter(value);
+                        if (childSetter.computeAggregationType("parent") == AggregationType.AS_COMPLEX_PROPERTY) {
+                            childSetter.setComplexProperty("parent", logbackObject);
+                        }
+
                         setter.setComplexProperty(propertyName, value);
                         break;
                     case AS_COMPLEX_PROPERTY_COLLECTION:
@@ -72,12 +77,13 @@ public class LogbackObjectPropertiesAssembler {
                         String msg = String.format("[Property: %s, AggregationType: %s]", propertyName, setterType);
                         throw new UnsupportedOperationException(msg);
                 }
+
+                if (value instanceof LifeCycle) {
+                    ((LifeCycle) value).start();
+                }
             }
         }
 
-        if (logbackObject instanceof LifeCycle) {
-            ((LifeCycle) logbackObject).start();
-        }
         return logbackObject;
     }
 }
