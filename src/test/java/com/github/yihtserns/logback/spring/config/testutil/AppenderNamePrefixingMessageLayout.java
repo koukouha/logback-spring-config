@@ -25,9 +25,9 @@ import ch.qos.logback.core.status.Status;
  * @author yihtserns
  * @see #doLayout(ILoggingEvent)
  */
-public class FormattedMessageLayout implements Layout<ILoggingEvent> {
+public class AppenderNamePrefixingMessageLayout implements Layout<ILoggingEvent> {
 
-    public static final FormattedMessageLayout INSTANCE = new FormattedMessageLayout();
+    public static final AppenderNamePrefixingMessageLayout NO_PREFIX = new AppenderNamePrefixingMessageLayout();
     private String prefix = "";
     private Appender parent;
 

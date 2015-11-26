@@ -30,7 +30,7 @@ public class MockAppender extends AppenderBase<ILoggingEvent> {
 
     private List<String> aliases = new ArrayList<String>();
     private List<String> messageList = new ArrayList<String>();
-    private Layout<ILoggingEvent> layout = FormattedMessageLayout.INSTANCE;
+    private Layout<ILoggingEvent> layout = AppenderNamePrefixingMessageLayout.NO_PREFIX;
     public long id;
 
     @Override
