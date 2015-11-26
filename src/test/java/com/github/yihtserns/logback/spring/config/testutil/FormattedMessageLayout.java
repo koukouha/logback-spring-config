@@ -16,6 +16,7 @@
 package com.github.yihtserns.logback.spring.config.testutil;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.Layout;
 import ch.qos.logback.core.status.Status;
@@ -24,15 +25,36 @@ import ch.qos.logback.core.status.Status;
  * @author yihtserns
  * @see #doLayout(ILoggingEvent)
  */
-public enum FormattedMessageLayout implements Layout<ILoggingEvent> {
+public class FormattedMessageLayout implements Layout<ILoggingEvent> {
 
-    INSTANCE;
+    public static final FormattedMessageLayout INSTANCE = new FormattedMessageLayout();
+    private String prefix = "";
+    private Appender parent;
 
-    /**
-     * @see ILoggingEvent#getFormattedMessage()
-     */
+    @Override
     public String doLayout(ILoggingEvent event) {
-        return event.getFormattedMessage();
+        return prefix + event.getFormattedMessage();
+    }
+
+    @Override
+    public void start() {
+        this.prefix = "[" + parent.getName() + "] ";
+    }
+
+    public void setParent(Appender parent) {
+        this.parent = parent;
+    }
+
+    public Appender getParent() {
+        return parent;
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void setContext(Context context) {
     }
 
     public String getFileHeader() {
@@ -52,10 +74,6 @@ public enum FormattedMessageLayout implements Layout<ILoggingEvent> {
     }
 
     public String getContentType() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public void setContext(Context context) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -88,14 +106,6 @@ public enum FormattedMessageLayout implements Layout<ILoggingEvent> {
     }
 
     public void addError(String msg, Throwable ex) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public void start() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public void stop() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
