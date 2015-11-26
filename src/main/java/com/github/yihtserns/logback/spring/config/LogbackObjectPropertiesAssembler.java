@@ -17,6 +17,7 @@ package com.github.yihtserns.logback.spring.config;
 
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
+import ch.qos.logback.core.joran.spi.NoAutoStartUtil;
 import ch.qos.logback.core.joran.util.PropertySetter;
 import ch.qos.logback.core.spi.ContextAware;
 import ch.qos.logback.core.spi.LifeCycle;
@@ -77,7 +78,7 @@ public class LogbackObjectPropertiesAssembler {
                         throw new UnsupportedOperationException(msg);
                 }
 
-                if (value instanceof LifeCycle) {
+                if (value instanceof LifeCycle && NoAutoStartUtil.notMarkedWithNoAutoStart(value)) {
                     ((LifeCycle) value).start();
                 }
             }

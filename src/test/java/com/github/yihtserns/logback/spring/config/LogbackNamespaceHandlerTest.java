@@ -293,6 +293,24 @@ public class LogbackNamespaceHandlerTest {
         assertThat(parent, is(sameInstance((Appender) mock)));
     }
 
+    @Test
+    public void shouldNotStartLogbackObjectMarkedWithNoAutoStart() throws Exception {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <layout class=\"com.github.yihtserns.logback.spring.config.testutil.AppenderNamePrefixingMessageLayout\">\n"
+                + "        <suffixCreator class=\"com.github.yihtserns.logback.spring.config.testutil.AppenderNamePrefixingMessageLayout.SuffixCreator\"/>\n"
+                + "    </layout>\n"
+                + "</appender>");
+
+        log.info("<-- parent name -->");
+
+        MockAppender mock = appContext.getBean(MockAppender.class);
+        mock.assertLogged("[mock] <-- parent name --> (mock)");
+    }
+
     private static GenericApplicationContext newApplicationContextFor(String xml) {
         GenericApplicationContext applicationContext = new GenericApplicationContext();
         XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);
