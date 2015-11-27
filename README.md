@@ -45,3 +45,8 @@ to
 
 </beans>
 ```
+
+Supported | Not Supported
+--------- | -------------
+Spring placeholder (e.g. `${pattern}`) | Spring type conversion (`PropertyEditor`/`ConversionService`/`TypeConverter`)
+Spring expression (e.g. `#{T(com.company.MyDefaults).getPattern()}`) | `SiftingAppender`
