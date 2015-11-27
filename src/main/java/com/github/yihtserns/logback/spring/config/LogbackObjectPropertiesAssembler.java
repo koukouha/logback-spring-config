@@ -50,42 +50,53 @@ public class LogbackObjectPropertiesAssembler {
         for (Map<String, Object> property2Value : property2ValueList) {
             for (Entry<String, Object> entry : property2Value.entrySet()) {
                 String propertyName = entry.getKey();
-                Object value = entry.getValue();
+                Object propertyValue = entry.getValue();
+                AggregationType propertyType = setter.computeAggregationType(propertyName);
 
-                if (value instanceof ContextAware) {
-                    ((ContextAware) value).setContext(logbackContext);
-                }
-                PropertySetter childSetter = new PropertySetter(value);
-                if (childSetter.computeAggregationType("parent") == AggregationType.AS_COMPLEX_PROPERTY) {
-                    childSetter.setComplexProperty("parent", logbackObject);
+                // Setup property value if it's a bean
+                switch (propertyType) {
+                    case AS_COMPLEX_PROPERTY:
+                    case AS_COMPLEX_PROPERTY_COLLECTION:
+                        // Bean type
+                        if (propertyValue instanceof ContextAware) {
+                            ((ContextAware) propertyValue).setContext(logbackContext);
+                        }
+                        PropertySetter childSetter = new PropertySetter(propertyValue);
+                        if (childSetter.computeAggregationType("parent") == AggregationType.AS_COMPLEX_PROPERTY) {
+                            childSetter.setComplexProperty("parent", logbackObject);
+                        }
+                        break;
+                    default:
+                        // Value type
+                        break;
                 }
 
-                AggregationType setterType = setter.computeAggregationType(propertyName);
-                switch (setterType) {
+                // Inject property value into Logback object
+                switch (propertyType) {
                     case AS_BASIC_PROPERTY:
-                        setter.setProperty(propertyName, (String) value);
+                        setter.setProperty(propertyName, (String) propertyValue);
                         break;
                     case AS_BASIC_PROPERTY_COLLECTION:
-                        setter.addBasicProperty(propertyName, (String) value);
+                        setter.addBasicProperty(propertyName, (String) propertyValue);
                         break;
                     case AS_COMPLEX_PROPERTY:
-                        setter.setComplexProperty(propertyName, value);
+                        setter.setComplexProperty(propertyName, propertyValue);
                         break;
                     case AS_COMPLEX_PROPERTY_COLLECTION:
-                        setter.addComplexProperty(propertyName, value);
+                        setter.addComplexProperty(propertyName, propertyValue);
                         break;
                     case NOT_FOUND: {
                         String msg = String.format("Bean property '%s' is not writable or has an invalid setter/adder method.", propertyName);
                         throw new NotWritablePropertyException(logbackObject.getClass(), propertyName, msg);
                     }
                     default: {
-                        String msg = String.format("[Property: %s, AggregationType: %s]", propertyName, setterType);
+                        String msg = String.format("[Property: %s, AggregationType: %s]", propertyName, propertyType);
                         throw new UnsupportedOperationException(msg);
                     }
                 }
 
-                if (value instanceof LifeCycle && NoAutoStartUtil.notMarkedWithNoAutoStart(value)) {
-                    ((LifeCycle) value).start();
+                if (propertyValue instanceof LifeCycle && NoAutoStartUtil.notMarkedWithNoAutoStart(propertyValue)) {
+                    ((LifeCycle) propertyValue).start();
                 }
             }
         }
