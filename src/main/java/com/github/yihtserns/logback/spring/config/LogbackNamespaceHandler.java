@@ -78,9 +78,9 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
             }
             builder.addConstructorArgValue(logbackObjectBuilder.getBeanDefinition());
 
-            ManagedList<ManagedMap<String, Object>> property2ValueList = new ManagedList<ManagedMap<String, Object>>();
+            ManagedList<Pair> property2ValueList = new ManagedList<Pair>();
             for (Element childElement : DomUtils.getChildElements(element)) {
-                ManagedMap<String, Object> property2Value = parsePropertyValue(childElement, parserContext, builder);
+                Pair property2Value = parsePropertyValue(childElement, parserContext, builder);
 
                 if (property2Value != null) {
                     property2ValueList.add(property2Value);
@@ -89,7 +89,7 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
             builder.addConstructorArgValue(property2ValueList);
         }
 
-        private ManagedMap<String, Object> parsePropertyValue(
+        private Pair parsePropertyValue(
                 Element propertyElement,
                 ParserContext parserContext,
                 BeanDefinitionBuilder builder) {
@@ -98,7 +98,7 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
             if ("appender-ref".equals(localName)) {
                 String appenderName = propertyElement.getAttribute("ref");
 
-                return pair("appender", new RuntimeBeanReference(appenderName));
+                return new Pair("appender", new RuntimeBeanReference(appenderName));
             }
 
             if (StringUtils.hasText(propertyElement.getAttribute("class"))) {
@@ -107,7 +107,7 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                         parserContext.getDelegate(),
                         builder.getRawBeanDefinition());
 
-                return pair(localName, parse(propertyElement, childParserContext));
+                return new Pair(localName, parse(propertyElement, childParserContext));
             }
 
             String body = DomUtils.getTextValue(propertyElement);
@@ -118,14 +118,19 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                 return null;
             }
 
-            return pair(localName, body);
+            return new Pair(localName, body);
         }
+    }
 
-        private ManagedMap<String, Object> pair(String propertyName, Object propertyValue) {
-            ManagedMap<String, Object> pair = new ManagedMap<String, Object>();
-            pair.put(propertyName, propertyValue);
+    /**
+     * Pair of property key -to- property value.
+     * <p/>
+     * Extends {@link ManagedMap} so that Spring would resolve the key and value.
+     */
+    private static final class Pair extends ManagedMap<String, Object> {
 
-            return pair;
+        public Pair(String key, Object value) {
+            put(key, value);
         }
     }
 }
