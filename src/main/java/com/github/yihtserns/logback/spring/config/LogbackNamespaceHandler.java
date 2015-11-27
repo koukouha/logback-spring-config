@@ -102,7 +102,6 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
             }
 
             if (StringUtils.hasText(propertyElement.getAttribute("class"))) {
-                // Complex property
                 ParserContext childParserContext = new ParserContext(
                         parserContext.getReaderContext(),
                         parserContext.getDelegate(),
@@ -119,7 +118,6 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                 return null;
             }
 
-            // Simple property
             return pair(localName, body);
         }
 
