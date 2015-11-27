@@ -50,15 +50,7 @@ public class LogbackObjectPropertiesAssembler {
                 String propertyName = entry.getKey();
                 Object propertyValue = entry.getValue();
 
-                if (propertyValue instanceof ContextAware) {
-                    ((ContextAware) propertyValue).setContext(logbackContext);
-                }
-
                 logbackComponent.setOrAddProperty(propertyName, propertyValue);
-
-                if (propertyValue instanceof LifeCycle && NoAutoStartUtil.notMarkedWithNoAutoStart(propertyValue)) {
-                    ((LifeCycle) propertyValue).start();
-                }
             }
         }
 
@@ -74,17 +66,13 @@ public class LogbackObjectPropertiesAssembler {
 
         public void setOrAddProperty(String name, Object value) {
             AggregationType propertyType = computeAggregationType(name);
-            // Setup property value if it's a bean
-            switch (propertyType) {
-                case AS_COMPLEX_PROPERTY:
-                case AS_COMPLEX_PROPERTY_COLLECTION:
-                    // Bean type
-                    LogbackComponent childComponent = new LogbackComponent(value, getContext());
-                    childComponent.setPropertyIfExists("parent", getObj());
-                    break;
-                default:
-                    // Value type
-                    break;
+
+            if (isComplexType(propertyType)) {
+                LogbackComponent childComponent = new LogbackComponent(value, getContext());
+
+                childComponent.injectLogbackContextIfApplicable();
+                childComponent.setPropertyIfExists("parent", getObj());
+                childComponent.startIfApplicable();
             }
 
             // Inject property value into Logback object
@@ -112,10 +100,31 @@ public class LogbackObjectPropertiesAssembler {
             }
         }
 
+        public void injectLogbackContextIfApplicable() {
+            Object candidate = getObj();
+
+            if (candidate instanceof ContextAware) {
+                ((ContextAware) candidate).setContext(getContext());
+            }
+        }
+
         public void setPropertyIfExists(String name, Object value) {
             if (computeAggregationType(name) == AggregationType.AS_COMPLEX_PROPERTY) {
                 setComplexProperty(name, value);
             }
+        }
+
+        public void startIfApplicable() {
+            Object candidate = getObj();
+
+            if (candidate instanceof LifeCycle && NoAutoStartUtil.notMarkedWithNoAutoStart(candidate)) {
+                ((LifeCycle) candidate).start();
+            }
+        }
+
+        private static boolean isComplexType(AggregationType propertyType) {
+            return propertyType == AggregationType.AS_COMPLEX_PROPERTY
+                    || propertyType == AggregationType.AS_COMPLEX_PROPERTY_COLLECTION;
         }
     }
 }
