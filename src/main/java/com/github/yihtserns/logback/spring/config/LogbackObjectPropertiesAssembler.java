@@ -79,10 +79,8 @@ public class LogbackObjectPropertiesAssembler {
                 case AS_COMPLEX_PROPERTY:
                 case AS_COMPLEX_PROPERTY_COLLECTION:
                     // Bean type
-                    PropertySetter childSetter = new PropertySetter(value);
-                    if (childSetter.computeAggregationType("parent") == AggregationType.AS_COMPLEX_PROPERTY) {
-                        childSetter.setComplexProperty("parent", getObj());
-                    }
+                    LogbackComponent childComponent = new LogbackComponent(value, getContext());
+                    childComponent.setPropertyIfExists("parent", getObj());
                     break;
                 default:
                     // Value type
@@ -111,6 +109,12 @@ public class LogbackObjectPropertiesAssembler {
                     String msg = String.format("[Property: %s, AggregationType: %s]", name, propertyType);
                     throw new UnsupportedOperationException(msg);
                 }
+            }
+        }
+
+        public void setPropertyIfExists(String name, Object value) {
+            if (computeAggregationType(name) == AggregationType.AS_COMPLEX_PROPERTY) {
+                setComplexProperty(name, value);
             }
         }
     }
