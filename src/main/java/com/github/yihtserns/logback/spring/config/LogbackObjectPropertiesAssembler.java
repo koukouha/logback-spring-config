@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.NotWritablePropertyException;
+import org.springframework.beans.factory.BeanInitializationException;
 
 /**
  * @author yihtserns
@@ -120,6 +121,26 @@ public class LogbackObjectPropertiesAssembler {
             if (candidate instanceof LifeCycle && NoAutoStartUtil.notMarkedWithNoAutoStart(candidate)) {
                 ((LifeCycle) candidate).start();
             }
+        }
+
+        @Override
+        public void addWarn(String msg) {
+            addError(msg);
+        }
+
+        @Override
+        public void addWarn(String msg, Throwable ex) {
+            addError(msg, ex);
+        }
+
+        @Override
+        public void addError(String msg) {
+            throw new BeanInitializationException(msg);
+        }
+
+        @Override
+        public void addError(String msg, Throwable ex) {
+            throw new BeanInitializationException(msg, ex);
         }
 
         private static boolean isComplexType(AggregationType propertyType) {

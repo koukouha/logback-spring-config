@@ -324,6 +324,18 @@ public class LogbackNamespaceHandlerTest {
                 + "</appender>");
     }
 
+    @Test
+    public void shouldThrowWhenUnableToSetValueToProperty() throws Exception {
+        thrown.expectMessage("A \"java.lang.String\" object is not assignable to a \"ch.qos.logback.core.Layout\" variable");
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <layout>Not layout object</layout>\n"
+                + "</appender>");
+    }
+
     private static GenericApplicationContext newApplicationContextFor(String xml) {
         GenericApplicationContext applicationContext = new GenericApplicationContext();
         XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);
