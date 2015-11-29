@@ -336,6 +336,60 @@ public class LogbackNamespaceHandlerTest {
                 + "</appender>");
     }
 
+    @Test
+    public void canSetSimplePropertyUsingParamTag() throws Exception {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <param name=\"id\" value=\"123\"/>\n"
+                + "</appender>");
+
+        MockAppender mock = appContext.getBean(MockAppender.class);
+        assertThat(mock.id, is(123L));
+    }
+
+    /**
+     * Following Logback's XML parser.
+     */
+    @Test
+    public void shouldTrimParamValue() throws Exception {
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <param name=\"alias\" value=\"   fake   \"/>\n"
+                + "</appender>");
+
+        MockAppender mock = appContext.getBean(MockAppender.class);
+        assertThat(mock.getAliases(), is(new String[]{"fake"}));
+    }
+
+    @Test
+    public void shouldReportErrorWhenNameAttributeMissingFromParamTag() throws Exception {
+        thrown.expectMessage("<param> must have 'name' attribute.");
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <param value=\"fake\"/>\n"
+                + "</appender>");
+    }
+    @Test
+    public void shouldReportErrorWhenValueAttributeMissingFromParamTag() throws Exception {
+        thrown.expectMessage("<param> must have 'value' attribute.");
+        appContext = newApplicationContextFor(
+                "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <param name=\"alias\"/>\n"
+                + "</appender>");
+    }
+
     private static GenericApplicationContext newApplicationContextFor(String xml) {
         GenericApplicationContext applicationContext = new GenericApplicationContext();
         XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);

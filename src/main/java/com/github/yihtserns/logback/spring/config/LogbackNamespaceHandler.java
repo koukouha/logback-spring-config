@@ -95,6 +95,24 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
                 BeanDefinitionBuilder builder) {
             String localName = propertyElement.getLocalName();
 
+            if ("param".equals(localName)) {
+                String name = propertyElement.getAttribute("name");
+                String value = propertyElement.getAttribute("value").trim();
+
+                if (!StringUtils.hasText(name)) {
+                    parserContext.getReaderContext().error("<param> must have 'name' attribute.", propertyElement);
+
+                    return null;
+                }
+                if (!StringUtils.hasText(value)) {
+                    parserContext.getReaderContext().error("<param> must have 'value' attribute.", propertyElement);
+
+                    return null;
+                }
+
+                return new Pair(name, value);
+            }
+
             if ("appender-ref".equals(localName)) {
                 String appenderName = propertyElement.getAttribute("ref");
 
