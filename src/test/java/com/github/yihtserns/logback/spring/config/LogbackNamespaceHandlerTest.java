@@ -378,6 +378,7 @@ public class LogbackNamespaceHandlerTest {
                 + "    <param value=\"fake\"/>\n"
                 + "</appender>");
     }
+
     @Test
     public void shouldReportErrorWhenValueAttributeMissingFromParamTag() throws Exception {
         thrown.expectMessage("<param> must have 'value' attribute.");
@@ -388,6 +389,44 @@ public class LogbackNamespaceHandlerTest {
                 + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
                 + "    <param name=\"alias\"/>\n"
                 + "</appender>");
+    }
+
+    @Test
+    public void verifyPlacesPropertyPlaceholderCanBeUsed() throws Exception {
+        appContext = newApplicationContextFor(
+                "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\n"
+                + "                      http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "  <bean class=\"org.springframework.beans.factory.config.PropertyPlaceholderConfigurer\">\n"
+                + "    <property name=\"properties\">\n"
+                + "      <value>\n"
+                + "        appender.class=com.github.yihtserns.logback.spring.config.testutil.MockAppender\n"
+                + "        appender.alias=fake\n"
+                + "        appender.id.propname=id\n"
+                + "        appender.id.propvalue=123\n"
+                + "        appender.layout.pattern=%level - %msg\n"
+                + "        appender.layout.class=ch.qos.logback.classic.PatternLayout\n"
+                + "      </value>\n"
+                + "    </property>\n"
+                + "  </bean>\n"
+                + "  <appender name=\"mock\" class=\"${appender.class}\" xmlns=\"http://logback.qos.ch\">\n"
+                + "    <alias>${appender.alias}</alias>\n"
+                + "    <param name=\"${appender.alias.propname:alias}\" value=\"unreal\"/>\n"
+                + "    <param name=\"${appender.id.propname}\" value=\"${appender.id.propvalue}\"/>\n"
+                + "    <layout class=\"${appender.layout.class}\">\n"
+                + "        <pattern>${appender.layout.pattern}</pattern>\n"
+                + "    </layout>\n"
+                + "  </appender>\n"
+                + "</beans>");
+
+        MockAppender mock = appContext.getBean("mock", MockAppender.class);
+        assertThat(mock.getName(), is("mock"));
+        assertThat(mock.getAliases(), is(new String[]{"fake", "unreal"}));
+        assertThat(mock.id, is(123L));
+
+        log.error("Hey");
+        mock.assertLogged("ERROR - Hey");
     }
 
     private static GenericApplicationContext newApplicationContextFor(String xml) {
