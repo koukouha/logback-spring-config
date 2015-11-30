@@ -419,6 +419,7 @@ public class LogbackNamespaceHandlerTest {
                 + "        appender.id.propvalue=123\n"
                 + "        appender.layout.pattern=%level - %msg\n"
                 + "        appender.layout.class=ch.qos.logback.classic.PatternLayout\n"
+                + "        async.ref=mock\n"
                 + "      </value>\n"
                 + "    </property>\n"
                 + "  </bean>\n"
@@ -430,6 +431,9 @@ public class LogbackNamespaceHandlerTest {
                 + "        <pattern>${appender.layout.pattern}</pattern>\n"
                 + "    </layout>\n"
                 + "  </appender>\n"
+                + "  <appender name=\"async\" class=\"ch.qos.logback.classic.AsyncAppender\" xmlns=\"http://logback.qos.ch\">\n"
+                + "    <appender-ref ref=\"${async.ref}\"/>\n"
+                + "  </appender>\n"
                 + "</beans>");
 
         MockAppender mock = appContext.getBean("mock", MockAppender.class);
@@ -439,6 +443,9 @@ public class LogbackNamespaceHandlerTest {
 
         log.error("Hey");
         mock.assertLogged("ERROR - Hey");
+
+        AsyncAppender async = appContext.getBean("async", AsyncAppender.class);
+        assertThat(async.getAppender("mock"), is(sameInstance((Appender) mock)));
     }
 
     private static GenericApplicationContext newApplicationContextFor(String xml) {
