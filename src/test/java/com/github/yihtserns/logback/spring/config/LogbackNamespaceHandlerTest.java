@@ -238,6 +238,18 @@ public class LogbackNamespaceHandlerTest {
     }
 
     @Test
+    public void shouldThrowWhenRefAttributeMissingFromAppenderRefTag() throws Exception {
+        thrown.expectMessage("<appender-ref> must have 'ref' attribute.");
+        appContext = newApplicationContextFor(
+                "<appender name=\"async\" class=\"ch.qos.logback.classic.AsyncAppender\"\n"
+                + " xmlns=\"http://logback.qos.ch\"\n"
+                + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + " xsi:schemaLocation=\"http://logback.qos.ch logback-lenient.xsd\">\n"
+                + "    <appender-ref />\n"
+                + "</appender>");
+    }
+
+    @Test
     public void canSetComplexValueIntoAppender() throws Exception {
         appContext = newApplicationContextFor(
                 "<appender name=\"mock\" class=\"com.github.yihtserns.logback.spring.config.testutil.MockAppender\"\n"

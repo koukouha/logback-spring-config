@@ -115,6 +115,12 @@ public class LogbackNamespaceHandler extends NamespaceHandlerSupport {
 
             if ("appender-ref".equals(localName)) {
                 String appenderName = propertyElement.getAttribute("ref");
+                
+                if (!StringUtils.hasText(appenderName)) {
+                    parserContext.getReaderContext().error("<appender-ref> must have 'ref' attribute.", propertyElement);
+
+                    return null;
+                }
 
                 return new Pair("appender", new RuntimeBeanReference(appenderName));
             }
