@@ -86,6 +86,20 @@ to
 ```
 - Spring Property Placeholder
 ```
+<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <property name="properties">
+    <value>
+      appender.name=FILE
+      appender.class=ch.qos.logback.core.FileAppender
+      appender.filepath=log/file.log
+      appender.prop.name=prudent
+      appender.prop.value=true
+      appender.encoder.class=ch.qos.logback.classic.encoder.PatternLayoutEncoder
+      appender.encoder.pattern=%level - %msg%n
+    </value>
+  </property>
+</bean>
+
 <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
   <appender-ref ref="${appender.name}"/>
 </appender>
