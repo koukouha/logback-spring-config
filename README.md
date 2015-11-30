@@ -46,7 +46,112 @@ to
 </beans>
 ```
 
-Supported | Not Supported
---------- | -------------
-Spring placeholder (e.g. `${pattern}`) | Spring type conversion (`PropertyEditor`/`ConversionService`/`TypeConverter`)
-Spring expression (e.g. `#{T(com.company.MyDefaults).getPattern()}`) | `SiftingAppender`
+<table>
+    <tr>
+        <th>Supported</th>
+        <th>Not Supported</th>
+    </tr>
+    <tr>
+        <td>
+Appender
+<pre>
+&lt;appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"/&gt;
+</pre>
+        </td>
+        <td>
+Default Class for Property
+<pre>
+&lt;appender name="FILE" class="ch.qos.logback.core.FileAppender"&gt;
+  &lt;encoder&gt; &lt;!-- Does not auto-resolve to ch.qos.logback.classic.encoder.PatternLayoutEncoder --&gt;
+    &lt;pattern&gt;%level - %msg%n&lt;/pattern&gt;
+  &lt;/encoder&gt;
+&lt;/appender&gt;
+</pre>
+        </td>
+    </tr>
+    <tr>
+        <td>
+Simple Property
+<pre>
+&lt;appender name="FILE" class="ch.qos.logback.core.FileAppender"&gt;
+  &lt;file&gt;log/file.log&lt;/file&gt;
+&lt;/appender&gt;
+</pre>
+        </td>
+        <td>
+            Spring Type Conversion (`PropertyEditor`/`ConversionService`/`TypeConverter`)
+        </td>
+    </tr>
+    <tr>
+        <td>
+Complex Property
+<pre>
+&lt;appender name="FILE" class="ch.qos.logback.core.FileAppender"&gt;
+  &lt;encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"&gt;
+    &lt;pattern&gt;%level - %msg%n&lt;/pattern&gt;
+  &lt;/encoder&gt;
+&lt;/appender&gt;
+</pre>
+        </td>
+        <td>
+            Sifting Appender
+        </td>
+    </tr>
+    <tr>
+        <td>
+Param
+<pre>
+&lt;appender name="FILE" class="ch.qos.logback.core.FileAppender"&gt;
+  &lt;param name="file" value="log/file.log"/&gt;
+&lt;/appender&gt;
+</pre>
+        </td>
+    </tr>
+    <tr>
+        <td>
+Appender Reference
+<pre>
+&lt;appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender"&gt;
+  &lt;appender-ref ref="FILE"/&gt;
+&lt;/appender&gt;
+
+&lt;appender name="FILE" class="ch.qos.logback.core.FileAppender"&gt;
+  &lt;file&gt;log/file.log&lt;/file&gt;
+  &lt;encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"&gt;
+    &lt;pattern&gt;%level - %msg%n&lt;/pattern&gt;
+  &lt;/encoder&gt;
+&lt;/appender&gt;
+</pre>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Spring Property Placeholder
+<pre>
+&lt;appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender"&gt;
+  &lt;appender-ref ref="${appender.name}"/&gt;
+&lt;/appender&gt;
+
+&lt;appender name="FILE" class="${appender.class}"&gt;
+  &lt;file&gt;${appender.filepath}&lt;/file&gt;
+  &lt;param name="${appender.prop.name}" value="${appender.prop.value}"/&gt;
+  &lt;encoder class="${appender.encoder.class}"&gt;
+    &lt;pattern&gt;${appender.encoder.pattern}&lt;/pattern&gt;
+  &lt;/encoder&gt;
+&lt;/appender&gt;
+</pre>
+        </td>
+    </tr>
+    <tr>
+        <td>
+Spring Expression
+<pre>
+&lt;appender name="FILE" class="ch.qos.logback.core.FileAppender"&gt;
+  &lt;encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"&gt;
+    &lt;pattern&gt;#{T(com.company.MyDefaults).getPattern()}&lt;/pattern&gt;
+  &lt;/encoder&gt;
+&lt;/appender&gt;
+</pre>
+        </td>
+    </tr>
+</table>
