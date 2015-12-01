@@ -48,17 +48,17 @@ to
 
 ### Supported
 - Appender
-```
+```xml
 <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender" xmlns="http://logback.qos.ch"/>
 ```
 - Simple Property
-```
+```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <file>log/file.log</file>
 </appender>
 ```
 - Complex Property
-```
+```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
     <pattern>%level - %msg%n</pattern>
@@ -66,13 +66,13 @@ to
 </appender>
 ```
 - Param
-```
+```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <param name="file" value="log/file.log"/>
 </appender>
 ```
 - Appender Reference
-```
+```xml
 <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
   <appender-ref ref="FILE"/>
 </appender>
@@ -85,7 +85,7 @@ to
 </appender>
 ```
 - Spring Property Placeholder
-```
+```xml
 <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
   <property name="properties">
     <value>
@@ -113,7 +113,7 @@ to
 </appender>
 ```
 - Spring Expression
-```
+```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
     <pattern>#{T(com.company.MyDefaults).getPattern()}</pattern>
@@ -123,7 +123,7 @@ to
 
 ### Not Supported
 - Default Class for Complex Property
-```
+```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <encoder> <!-- Error - does NOT auto-resolve to ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
     <pattern>%level - %msg%n</pattern>
@@ -137,7 +137,7 @@ to
 Trivia
 ======
 - You can replace `appender-ref` with nested appender, e.g from:
-```
+```xml
 <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
   <appender-ref ref="FILE"/>
 </appender>
@@ -150,7 +150,7 @@ Trivia
 </appender>
 ```
 to
-```
+```xml
 <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
   <file>log/file.log</file>
@@ -162,7 +162,7 @@ to
 ```
 Seems like you can also do this in `logback.xml`, but it won't pick up the nested appender's `name` attribute (not a problem if you don't need it?).
 - Share encoder configuration by creating a prototype bean, e.g. instead of:
-```
+```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <file>log/file.log</file>
   <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -179,7 +179,7 @@ Seems like you can also do this in `logback.xml`, but it won't pick up the neste
 </appender>
 ```
 you can have this:
-```
+```xml
 <bean id="myEncoder" class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"
     scope="prototype"> <!-- So each appender get their own individual instance -->
   <property name="immediateFlush" value="false"/>
