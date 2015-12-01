@@ -101,14 +101,6 @@ public class LogbackObjectPropertiesAssembler {
             }
         }
 
-        private void injectLogbackContextIntoObjIfApplicable() {
-            Object candidate = getObj();
-
-            if (candidate instanceof ContextAware) {
-                ((ContextAware) candidate).setContext(context);
-            }
-        }
-
         public void setPropertyIfExists(String name, Object value) {
             if (computeAggregationType(name) == AggregationType.AS_COMPLEX_PROPERTY) {
                 setComplexProperty(name, value);
@@ -141,6 +133,14 @@ public class LogbackObjectPropertiesAssembler {
         @Override
         public void addError(String msg, Throwable ex) {
             throw new BeanInitializationException(msg, ex);
+        }
+
+        private void injectLogbackContextIntoObjIfApplicable() {
+            Object candidate = getObj();
+
+            if (candidate instanceof ContextAware) {
+                ((ContextAware) candidate).setContext(context);
+            }
         }
 
         private static boolean isComplexType(AggregationType propertyType) {
