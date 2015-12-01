@@ -131,4 +131,5 @@ to
 </appender>
 ```
 - Spring Type Conversion (`PropertyEditor`/`ConversionService`/`TypeConverter`)
+- Conditionals (`if`/`then`/`else`)
 - Sifting Appender
