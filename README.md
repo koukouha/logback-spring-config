@@ -160,7 +160,7 @@ to
   </appender>
 </appender>
 ```
-Seems like you can also do this in `logback.xml`, but it won't pick up the nested appender's `name` attribute (not a problem if you don't need it?).
+NOTE: Seems like you can also do this in `logback.xml`, but it won't pick up the nested appender's `name` attribute (not a problem if you don't need it?).
 - Share encoder configuration by creating a prototype bean, e.g. instead of:
 ```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
