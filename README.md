@@ -136,7 +136,8 @@ to
 
 Trivia
 ======
-- You can replace `appender-ref` with nested appender, e.g from:
+### Replace `appender-ref` with nested appender
+E.g. from
 ```xml
 <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
   <appender-ref ref="FILE"/>
@@ -161,7 +162,9 @@ to
 </appender>
 ```
 NOTE: Seems like you can also do this in `logback.xml`, but it won't pick up the nested appender's `name` attribute (not a problem if you don't need it?).
-- You can share encoder configuration by creating a prototype bean, e.g. instead of:
+
+### Share encoder configuration via prototype bean
+E.g. instead of:
 ```xml
 <appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <file>log/file.log</file>
