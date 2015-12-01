@@ -49,17 +49,17 @@ to
 ### Supported
 - Appender
 ```
-<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"/>
+<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender" xmlns="http://logback.qos.ch"/>
 ```
 - Simple Property
 ```
-<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <file>log/file.log</file>
 </appender>
 ```
 - Complex Property
 ```
-<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
     <pattern>%level - %msg%n</pattern>
   </encoder>
@@ -67,17 +67,17 @@ to
 ```
 - Param
 ```
-<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <param name="file" value="log/file.log"/>
 </appender>
 ```
 - Appender Reference
 ```
-<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
   <appender-ref ref="FILE"/>
 </appender>
 
-<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <file>log/file.log</file>
   <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
     <pattern>%level - %msg%n</pattern>
@@ -100,11 +100,11 @@ to
   </property>
 </bean>
 
-<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
   <appender-ref ref="${appender.name}"/>
 </appender>
 
-<appender name="FILE" class="${appender.class}">
+<appender name="FILE" class="${appender.class}" xmlns="http://logback.qos.ch">
   <file>${appender.filepath}</file>
   <param name="${appender.prop.name}" value="${appender.prop.value}"/>
   <encoder class="${appender.encoder.class}">
@@ -114,7 +114,7 @@ to
 ```
 - Spring Expression
 ```
-<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
     <pattern>#{T(com.company.MyDefaults).getPattern()}</pattern>
   </encoder>
@@ -124,7 +124,7 @@ to
 ### Not Supported
 - Default Class for Complex Property
 ```
-<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
   <encoder> <!-- Error - does NOT auto-resolve to ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
     <pattern>%level - %msg%n</pattern>
   </encoder>
