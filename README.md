@@ -125,7 +125,7 @@ to
 - Default Class for Complex Property
 ```
 <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-  <encoder> <!-- Does NOT auto-resolve to ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+  <encoder> <!-- Error - does NOT auto-resolve to ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
     <pattern>%level - %msg%n</pattern>
   </encoder>
 </appender>
