@@ -1,5 +1,5 @@
 Logback Spring Config
----------------------
+=====================
 Extends [`Logback Extensions :: Spring`](https://github.com/qos-ch/logback-extensions/wiki/Spring) to allow moving appender XML configuration from `logback.xml` to Spring XML without much change, e.g. from:
 
 ```xml
@@ -135,7 +135,7 @@ to
 - Sifting Appender
 
 Trivia
-======
+------
 ### Replace `appender-ref` with nested appender
 E.g. from
 ```xml
