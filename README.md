@@ -178,7 +178,7 @@ NOTE: Seems like you can also do this in `logback.xml`, but it won't pick up the
   </encoder>
 </appender>
 ```
-you can have this:
+you can do this:
 ```xml
 <bean id="myEncoder" class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"
     scope="prototype"> <!-- So each appender get their own individual instance -->
