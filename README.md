@@ -153,11 +153,11 @@ to
 ```xml
 <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-  <file>log/file.log</file>
-  <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-    <pattern>%level - %msg%n</pattern>
-  </encoder>
-</appender>
+    <file>log/file.log</file>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%level - %msg%n</pattern>
+    </encoder>
+  </appender>
 </appender>
 ```
 Seems like you can also do this in `logback.xml`, but it won't pick up the nested appender's `name` attribute (not a problem if you don't need it?).
