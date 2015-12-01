@@ -133,3 +133,65 @@ to
 - Spring Type Conversion (`PropertyEditor`/`ConversionService`/`TypeConverter`)
 - Conditionals (`if`/`then`/`else`)
 - Sifting Appender
+
+Trivia
+======
+- You can replace `appender-ref` with nested appender, e.g from:
+```
+<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
+  <appender-ref ref="FILE"/>
+</appender>
+
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
+  <file>log/file.log</file>
+  <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+    <pattern>%level - %msg%n</pattern>
+  </encoder>
+</appender>
+```
+to
+```
+<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" xmlns="http://logback.qos.ch">
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+  <file>log/file.log</file>
+  <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+    <pattern>%level - %msg%n</pattern>
+  </encoder>
+</appender>
+</appender>
+```
+Seems like you can also do this in `logback.xml`, but it won't pick up the nested appender's `name` attribute (not a problem if you don't need it?).
+- Share encoder configuration by creating a prototype bean, e.g. instead of:
+```
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
+  <file>log/file.log</file>
+  <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+    <immediateFlush>false</immediateFlush>
+    <pattern>%level - %msg%n</pattern>
+  </encoder>
+</appender>
+
+<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender" xmlns="http://logback.qos.ch">
+  <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+    <immediateFlush>false</immediateFlush>
+    <pattern>%level - %msg%n</pattern>
+  </encoder>
+</appender>
+```
+you can have this:
+```
+<bean id="myEncoder" class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"
+    scope="prototype"> <!-- So each appender get their own individual instance -->
+  <property name="immediateFlush" value="false"/>
+  <property name="pattern" value="%level - %msg%n"/>
+</bean>
+
+<appender name="FILE" class="ch.qos.logback.core.FileAppender" xmlns="http://logback.qos.ch">
+  <file>log/file.log</file>
+  <encoder>#{myEncoder}</encoder>
+</appender>
+
+<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender" xmlns="http://logback.qos.ch">
+  <encoder>#{myEncoder}</encoder>
+</appender>
+```
