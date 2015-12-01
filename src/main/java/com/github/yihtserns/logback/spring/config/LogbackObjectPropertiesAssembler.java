@@ -63,6 +63,7 @@ public class LogbackObjectPropertiesAssembler {
         public LogbackComponent(Object obj, Context logbackContext) {
             super(obj);
             setContext(logbackContext);
+            injectLogbackContextIntoObjIfApplicable();
         }
 
         public void setOrAddProperty(String name, Object value) {
@@ -71,7 +72,6 @@ public class LogbackObjectPropertiesAssembler {
             if (isComplexType(propertyType)) {
                 LogbackComponent childComponent = new LogbackComponent(value, getContext());
 
-                childComponent.injectLogbackContextIfApplicable();
                 childComponent.setPropertyIfExists("parent", getObj());
                 childComponent.startIfApplicable();
             }
@@ -101,11 +101,11 @@ public class LogbackObjectPropertiesAssembler {
             }
         }
 
-        public void injectLogbackContextIfApplicable() {
+        private void injectLogbackContextIntoObjIfApplicable() {
             Object candidate = getObj();
 
             if (candidate instanceof ContextAware) {
-                ((ContextAware) candidate).setContext(getContext());
+                ((ContextAware) candidate).setContext(context);
             }
         }
 
