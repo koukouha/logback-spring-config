@@ -128,6 +128,15 @@ to
   <encoder> <!-- Error - does NOT auto-resolve to ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
     <pattern>%level - %msg%n</pattern>
   </encoder>
+  <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+    <evaluator> <!-- Error - does NOT auto-resolve to ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+      <matcher> <!-- Error - does NOT auto-resolve to ch.qos.logback.core.boolex.Matcher -->
+        <name>odd</name>
+        <regex>statement [13579]</regex>
+      </matcher>
+      <expression>odd.matches(formattedMessage)</expression>
+    </evaluator>
+  </filter>
 </appender>
 ```
 - Spring Type Conversion (`PropertyEditor`/`ConversionService`/`TypeConverter`)
