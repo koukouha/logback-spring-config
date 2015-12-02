@@ -134,6 +134,12 @@ to
 - Conditionals (`if`/`then`/`else`)
 - Sifting Appender
 
+Usage instruction
+-----------------
+1. Build or [download](https://github.com/yihtserns/logback-spring-config/releases/latest) the jar for this project.
+2. Put it where you put `logback-ext-spring-$VERSION.jar`.
+3. Done!
+
 Trivia
 ------
 ### Replace `appender-ref` with nested appender
